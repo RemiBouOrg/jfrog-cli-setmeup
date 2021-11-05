@@ -21,7 +21,10 @@ func GetSetMeUpCommand() components.Command {
 		Arguments:   getSetMeUpArguments(),
 		Flags:       getSetMeUpFlags(),
 		Action: func(c *components.Context) error {
-			return setMeUpCommand(c)
+			if len(c.Arguments) != 1 {
+				return errors.New("Wrong number of arguments. Expected: 1, " + "Received: " + strconv.Itoa(len(c.Arguments)))
+			}
+			return setMeUpCommand(c.Arguments[0], c.GetStringFlagValue("server-id"))
 		},
 	}
 }
@@ -53,24 +56,34 @@ type SetMeUpConfiguration struct {
 
 type RepoDetails struct {
 	PackageType string `json:"packageType"`
+	Key         string `json:"key"`
 }
 
 var handlers = map[string]func(SetMeUpConfiguration) error{
 	repository.Maven: handleMaven,
 }
 
-func setMeUpCommand(c *components.Context) error {
-	if len(c.Arguments) != 1 {
-		return errors.New("Wrong number of arguments. Expected: 1, " + "Received: " + strconv.Itoa(len(c.Arguments)))
-	}
+func setMeUpCommand(repoKey string, serverId string) error {
 	var conf = SetMeUpConfiguration{}
-	conf.repositoryKey = c.Arguments[0]
-	serverId := c.GetStringFlagValue("server-id")
+	conf.repositoryKey = repoKey
 	serverDetails, err := config.GetSpecificConfig(serverId, true, false)
 	if err != nil {
 		return fmt.Errorf("unable to get server details : %w", err)
 	}
 	conf.serverDetails = serverDetails
+	err = getRepoDetails(&conf)
+	if err != nil {
+		return err
+	}
+	handler, hasHandler := handlers[conf.repoDetails.PackageType]
+	if !hasHandler {
+		return fmt.Errorf("%s package type is not handled", conf.repoDetails.PackageType)
+	}
+	log.Info(fmt.Sprintf("Setting up repository %s of type %s on %s", conf.repositoryKey, conf.repoDetails.PackageType, conf.serverDetails.ArtifactoryUrl))
+	return handler(conf)
+}
+
+func getRepoDetails(conf *SetMeUpConfiguration) error {
 	authConfig, err := conf.serverDetails.CreateArtAuthConfig()
 	if err != nil {
 		return fmt.Errorf("unable to get artifactory details : %w", err)
@@ -87,15 +100,11 @@ func setMeUpCommand(c *components.Context) error {
 	if get.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected http status when getting repository details : %d", get.StatusCode)
 	}
-	conf.repoDetails = RepoDetails{}
-	err = json.Unmarshal(body, &conf.repoDetails)
+	repoDetails := RepoDetails{}
+	err = json.Unmarshal(body, &repoDetails)
 	if err != nil {
 		return fmt.Errorf("can not read repository details : %w", err)
 	}
-	handler, hasHandler := handlers[conf.repoDetails.PackageType]
-	if !hasHandler {
-		return fmt.Errorf("%s package type is not handled", conf.repoDetails.PackageType)
-	}
-	log.Info(fmt.Sprintf("Setting up repository %s of type %s on %s", conf.repositoryKey, conf.repoDetails.PackageType, authConfig.GetUrl()))
-	return handler(conf)
+	conf.repoDetails = repoDetails
+	return nil
 }
