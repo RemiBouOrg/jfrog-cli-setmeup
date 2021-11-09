@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-var testRepoKey = ""
+var testMavenRepoKey = ""
 var serverDetails *config.ServerDetails
 
 func TestMain(m *testing.M) {
@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 	}
 	repos := &[]RepoDetails{}
 	err = json.Unmarshal(body, repos)
-	testRepoKey = (*repos)[0].Key
+	testMavenRepoKey = (*repos)[0].Key
 	m.Run()
 }
 
@@ -48,11 +48,11 @@ func TestFailIfServerIdDoesntExists(t *testing.T) {
 }
 
 func TestFailsIfRepoDoesntExists(t *testing.T) {
-	err := setMeUpCommand(testRepoKey+"$$$", "")
+	err := setMeUpCommand(testMavenRepoKey+"$$$", "")
 	require.Error(t, err)
 }
 
 func TestOkIfRepoExists(t *testing.T) {
-	err := setMeUpCommand(testRepoKey, "")
+	err := setMeUpCommand(testMavenRepoKey, "")
 	require.NoError(t, err)
 }
