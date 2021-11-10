@@ -20,6 +20,11 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
+	testMavenRepoKey = getRepoListFromDefaultServer("maven")[0].Key
+	m.Run()
+}
+
+func getRepoListFromDefaultServer(repoType string) []RepoDetails {
 	authConfig, err := serverDetails.CreateArtAuthConfig()
 	if err != nil {
 		panic(err)
@@ -29,7 +34,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(fmt.Errorf("error occured when building http client: %w", err))
 	}
-	get, body, _, err := jfrogHttpClient.SendGet(fmt.Sprintf("%sapi/repositories?packageType=maven", authConfig.GetUrl()), false, &httpClientDetails)
+	get, body, _, err := jfrogHttpClient.SendGet(fmt.Sprintf("%sapi/repositories?packageType=%s", authConfig.GetUrl(), repoType), false, &httpClientDetails)
 	if err != nil {
 		panic(fmt.Errorf("error occured when getting repository : %w", err))
 	}
@@ -38,8 +43,7 @@ func TestMain(m *testing.M) {
 	}
 	repos := &[]RepoDetails{}
 	err = json.Unmarshal(body, repos)
-	testMavenRepoKey = (*repos)[0].Key
-	m.Run()
+	return *repos
 }
 
 func TestFailIfServerIdDoesntExists(t *testing.T) {

@@ -15,11 +15,11 @@ import (
 
 func GetSetMeUpCommand() components.Command {
 	return components.Command{
-		Name:        "set-me-up",
-		Description: "Set up your environment to use Artifactory repositoryKey",
-		Aliases:     []string{"smu"},
-		Arguments:   getSetMeUpArguments(),
-		Flags:       getSetMeUpFlags(),
+		Name:        "repository",
+		Description: "Set up your environment to use Artifactory repository",
+		Aliases:     []string{"r"},
+		Arguments:   getRepositorySetMeUpArguments(),
+		Flags:       getRepositorySetMeUpFlags(),
 		Action: func(c *components.Context) error {
 			if len(c.Arguments) != 1 {
 				return errors.New("Wrong number of arguments. Expected: 1, " + "Received: " + strconv.Itoa(len(c.Arguments)))
@@ -29,16 +29,16 @@ func GetSetMeUpCommand() components.Command {
 	}
 }
 
-func getSetMeUpArguments() []components.Argument {
+func getRepositorySetMeUpArguments() []components.Argument {
 	return []components.Argument{
 		{
-			Name:        "repositoryKey",
+			Name:        "repoKey",
 			Description: "The repositoryKey you want to use",
 		},
 	}
 }
 
-func getSetMeUpFlags() []components.Flag {
+func getRepositorySetMeUpFlags() []components.Flag {
 	return []components.Flag{
 		components.StringFlag{
 			Name:         "server-id",
@@ -61,6 +61,7 @@ type RepoDetails struct {
 
 var handlers = map[string]func(SetMeUpConfiguration) error{
 	repository.Maven: handleMaven,
+	repository.Nuget: handleNuget,
 }
 
 func setMeUpCommand(repoKey string, serverId string) error {
@@ -80,7 +81,12 @@ func setMeUpCommand(repoKey string, serverId string) error {
 		return fmt.Errorf("%s package type is not handled", conf.repoDetails.PackageType)
 	}
 	log.Info(fmt.Sprintf("Setting up repository %s of type %s on %s", conf.repositoryKey, conf.repoDetails.PackageType, conf.serverDetails.ArtifactoryUrl))
-	return handler(conf)
+	err = handler(conf)
+	if err != nil {
+		log.Error(fmt.Sprintf("An error occured : %v", err))
+		return err
+	}
+	return nil
 }
 
 func getRepoDetails(conf *SetMeUpConfiguration) error {
@@ -93,7 +99,7 @@ func getRepoDetails(conf *SetMeUpConfiguration) error {
 	if err != nil {
 		return fmt.Errorf("cannot create http client : %w", err)
 	}
-	get, body, _, err := jfrogHttpClient.SendGet(fmt.Sprintf("%sapi/repositories/%s", authConfig.GetUrl(), conf.repositoryKey), false, &httpClientDetails)
+	get, body, _, err := jfrogHttpClient.SendGet(fmt.Sprintf("%sapi/repositories/%s", conf.serverDetails.ArtifactoryUrl, conf.repositoryKey), false, &httpClientDetails)
 	if err != nil {
 		return fmt.Errorf("error occured when querying repository details : %w", err)
 	}
