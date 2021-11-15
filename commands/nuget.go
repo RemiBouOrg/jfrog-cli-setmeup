@@ -3,25 +3,21 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"github.com/jfrog/jfrog-client-go/http/jfroghttpclient"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"github.com/pkg/errors"
 	"os/exec"
 )
 
 func handleNuget(configuration SetMeUpConfiguration) error {
-	authConfig, _ := configuration.serverDetails.CreateArtAuthConfig()
-	httpClientDetails := authConfig.CreateHttpClientDetails()
-	jfrogHttpClient, _ := jfroghttpclient.JfrogClientBuilder().Build()
-	feedUrl := fmt.Sprintf("%sapi/nuget/v3/%s", configuration.serverDetails.ArtifactoryUrl, configuration.repositoryKey)
-	get, _, _, err := jfrogHttpClient.SendGet(feedUrl, false, &httpClientDetails)
+	feedUrl := fmt.Sprintf("api/nuget/v3/%s", configuration.repositoryKey)
+	get, _, err := configuration.artifactoryHttpGet(feedUrl)
 	if err != nil {
 		return err
 	}
 	if get.StatusCode == 404 {
 		log.Info(fmt.Sprintf("%s is not a v3 nuget repository", configuration.repositoryKey))
-		feedUrl = fmt.Sprintf("%sapi/nuget/%s", configuration.serverDetails.ArtifactoryUrl, configuration.repositoryKey)
-		get, _, _, err = jfrogHttpClient.SendGet(feedUrl, false, &httpClientDetails)
+		feedUrl = fmt.Sprintf("api/nuget/%s", configuration.repositoryKey)
+		get, _, err := configuration.artifactoryHttpGet(feedUrl)
 		if err != nil || get.StatusCode != 200 {
 			return fmt.Errorf("cannot find nuget repo version %s", configuration.repositoryKey)
 		}
@@ -33,9 +29,10 @@ func handleNuget(configuration SetMeUpConfiguration) error {
 		"-Name", "Artifactory",
 		"-NonInteractive",
 	).Run()
+	authConfig, _ := configuration.serverDetails.CreateArtAuthConfig()
 	command := exec.Command("nuget", "sources", "Add",
 		"-Name", "Artifactory",
-		"-Source", feedUrl,
+		"-Source", fmt.Sprintf("%s%s", configuration.serverDetails.ArtifactoryUrl, feedUrl),
 		"-UserName", authConfig.GetUser(),
 		"-Password", authConfig.GetPassword(),
 		"-NonInteractive",

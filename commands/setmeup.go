@@ -54,14 +54,24 @@ type SetMeUpConfiguration struct {
 	repoDetails   RepoDetails
 }
 
+func (c SetMeUpConfiguration) artifactoryHttpGet(path string) (*http.Response, []byte, error) {
+	authConfig, _ := c.serverDetails.CreateArtAuthConfig()
+	httpClientDetails := authConfig.CreateHttpClientDetails()
+	jfrogHttpClient, _ := jfroghttpclient.JfrogClientBuilder().Build()
+	url := fmt.Sprintf("%s%s", c.serverDetails.ArtifactoryUrl, path)
+	get, body, _, err := jfrogHttpClient.SendGet(url, false, &httpClientDetails)
+	return get, body, err
+}
+
 type RepoDetails struct {
 	PackageType string `json:"packageType"`
 	Key         string `json:"key"`
 }
 
 var handlers = map[string]func(SetMeUpConfiguration) error{
-	repository.Maven: handleMaven,
-	repository.Nuget: handleNuget,
+	repository.Maven:  handleMaven,
+	repository.Nuget:  handleNuget,
+	repository.Docker: handleDocker,
 }
 
 func setMeUpCommand(repoKey string, serverId string) error {
@@ -90,21 +100,12 @@ func setMeUpCommand(repoKey string, serverId string) error {
 }
 
 func getRepoDetails(conf *SetMeUpConfiguration) error {
-	authConfig, err := conf.serverDetails.CreateArtAuthConfig()
-	if err != nil {
-		return fmt.Errorf("unable to get artifactory details : %w", err)
-	}
-	httpClientDetails := authConfig.CreateHttpClientDetails()
-	jfrogHttpClient, err := jfroghttpclient.JfrogClientBuilder().Build()
-	if err != nil {
-		return fmt.Errorf("cannot create http client : %w", err)
-	}
-	get, body, _, err := jfrogHttpClient.SendGet(fmt.Sprintf("%sapi/repositories/%s", conf.serverDetails.ArtifactoryUrl, conf.repositoryKey), false, &httpClientDetails)
+	get, body, err := conf.artifactoryHttpGet(fmt.Sprintf("api/repositories/%s", conf.repositoryKey))
 	if err != nil {
 		return fmt.Errorf("error occured when querying repository details : %w", err)
 	}
 	if get.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected http status when getting repository details : %d", get.StatusCode)
+		return fmt.Errorf("unexpected http status when getting repository details : %d (%s)", get.StatusCode, string(body))
 	}
 	repoDetails := RepoDetails{}
 	err = json.Unmarshal(body, &repoDetails)
