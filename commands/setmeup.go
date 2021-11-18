@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -24,7 +25,7 @@ func GetSetMeUpCommand() components.Command {
 			if len(c.Arguments) != 1 {
 				return errors.New("Wrong number of arguments. Expected: 1, " + "Received: " + strconv.Itoa(len(c.Arguments)))
 			}
-			return setMeUpCommand(c.Arguments[0], c.GetStringFlagValue("server-id"))
+			return setMeUpCommand(context.Background(), c.Arguments[0], c.GetStringFlagValue("server-id"))
 		},
 	}
 }
@@ -49,9 +50,8 @@ func getRepositorySetMeUpFlags() []components.Flag {
 }
 
 type SetMeUpConfiguration struct {
-	repositoryKey string
 	serverDetails *config.ServerDetails
-	repoDetails   RepoDetails
+	repoDetails   *RepoDetails
 }
 
 func (c SetMeUpConfiguration) artifactoryHttpGet(path string) (*http.Response, []byte, error) {
@@ -68,21 +68,21 @@ type RepoDetails struct {
 	Key         string `json:"key"`
 }
 
-var handlers = map[string]func(SetMeUpConfiguration) error{
+var handlers = map[string]func(context.Context, SetMeUpConfiguration) error{
 	repository.Maven:  handleMaven,
 	repository.Nuget:  handleNuget,
 	repository.Docker: handleDocker,
+	repository.Go:     handleGo,
 }
 
-func setMeUpCommand(repoKey string, serverId string) error {
+func setMeUpCommand(ctx context.Context, repoKey string, serverId string) error {
 	var conf = SetMeUpConfiguration{}
-	conf.repositoryKey = repoKey
 	serverDetails, err := config.GetSpecificConfig(serverId, true, false)
 	if err != nil {
 		return fmt.Errorf("unable to get server details : %w", err)
 	}
 	conf.serverDetails = serverDetails
-	err = getRepoDetails(&conf)
+	conf.repoDetails, err = getRepoDetails(&conf, repoKey)
 	if err != nil {
 		return err
 	}
@@ -90,8 +90,8 @@ func setMeUpCommand(repoKey string, serverId string) error {
 	if !hasHandler {
 		return fmt.Errorf("%s package type is not handled", conf.repoDetails.PackageType)
 	}
-	log.Info(fmt.Sprintf("Setting up repository %s of type %s on %s", conf.repositoryKey, conf.repoDetails.PackageType, conf.serverDetails.ArtifactoryUrl))
-	err = handler(conf)
+	log.Info(fmt.Sprintf("Setting up repository %s of type %s on %s", repoKey, conf.repoDetails.PackageType, conf.serverDetails.ArtifactoryUrl))
+	err = handler(ctx, conf)
 	if err != nil {
 		log.Error(fmt.Sprintf("An error occured : %v", err))
 		return err
@@ -99,19 +99,18 @@ func setMeUpCommand(repoKey string, serverId string) error {
 	return nil
 }
 
-func getRepoDetails(conf *SetMeUpConfiguration) error {
-	get, body, err := conf.artifactoryHttpGet(fmt.Sprintf("api/repositories/%s", conf.repositoryKey))
+func getRepoDetails(conf *SetMeUpConfiguration, repoKey string) (*RepoDetails, error) {
+	get, body, err := conf.artifactoryHttpGet(fmt.Sprintf("api/repositories/%s", repoKey))
 	if err != nil {
-		return fmt.Errorf("error occured when querying repository details : %w", err)
+		return nil, err
 	}
 	if get.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected http status when getting repository details : %d (%s)", get.StatusCode, string(body))
+		return nil, errors.New(fmt.Sprintf("could not find repository %s", repoKey))
 	}
-	repoDetails := RepoDetails{}
+	repoDetails := &RepoDetails{}
 	err = json.Unmarshal(body, &repoDetails)
 	if err != nil {
-		return fmt.Errorf("can not read repository details : %w", err)
+		return nil, err
 	}
-	conf.repoDetails = repoDetails
-	return nil
+	return repoDetails, nil
 }

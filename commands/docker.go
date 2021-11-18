@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/jfrog/jfrog-client-go/utils/log"
@@ -12,7 +13,7 @@ import (
 	"strconv"
 )
 
-func handleDocker(configuration SetMeUpConfiguration) error {
+func handleDocker(ctx context.Context, configuration SetMeUpConfiguration) error {
 	get, jsonBytes, err := configuration.artifactoryHttpGet("api/system/configuration/webServer")
 	if err != nil {
 		return err
@@ -62,7 +63,7 @@ func findDockerHostAndPort(configuration SetMeUpConfiguration, webServerResponse
 		}
 		switch proxySetting.DockerReverseProxyMethod {
 		case "SUBDOMAIN":
-			host := fmt.Sprintf("%s.%s", configuration.repositoryKey, proxySetting.ServerName)
+			host := fmt.Sprintf("%s.%s", configuration.repoDetails.Key, proxySetting.ServerName)
 			log.Info(fmt.Sprintf("Using subdomain per repository technique with %s:%s", host, port))
 			return host, port, nil
 		case "REPOPATHPREFIX":
@@ -72,14 +73,14 @@ func findDockerHostAndPort(configuration SetMeUpConfiguration, webServerResponse
 		case "PORTPERREPO":
 			var host string
 			for _, portConfig := range proxySetting.ReverseProxyRepositories.ReverseProxyRepoConfigs {
-				if portConfig.RepoRef == configuration.repositoryKey {
+				if portConfig.RepoRef == configuration.repoDetails.Key {
 					host = portConfig.ServerName
 					port = strconv.Itoa(portConfig.Port)
 					break
 				}
 			}
 			if host == "" {
-				return "", "", fmt.Errorf("unable to find port config for %s", configuration.repositoryKey)
+				return "", "", fmt.Errorf("unable to find port config for %s", configuration.repoDetails.Key)
 			}
 			log.Info(fmt.Sprintf("Using path prefix per repository technique with %s:%s", host, port))
 			return host, port, nil

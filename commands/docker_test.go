@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
 	"github.com/stretchr/testify/require"
@@ -116,7 +117,7 @@ func Test_FindDockerHostPort(t *testing.T) {
 			host, port, err := findDockerHostAndPort(
 				SetMeUpConfiguration{
 					serverDetails: &config.ServerDetails{ArtifactoryUrl: test.artiUrl},
-					repositoryKey: test.repoKey,
+					repoDetails:   &RepoDetails{Key: test.repoKey},
 				},
 				&http.Response{StatusCode: test.webServerStatusCode},
 				webServerJsonStr)
@@ -132,11 +133,10 @@ func Test_FindDockerHostPort(t *testing.T) {
 
 func Test_handleDocker(t *testing.T) {
 	testDockerRepo := getRepoListFromDefaultServer("docker")[0].Key
-	err := handleDocker(
+	err := handleDocker(context.Background(),
 		SetMeUpConfiguration{
-			repositoryKey: testDockerRepo,
 			serverDetails: serverDetails,
-			repoDetails: RepoDetails{
+			repoDetails: &RepoDetails{
 				PackageType: "docker",
 				Key:         testDockerRepo,
 			},

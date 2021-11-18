@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"github.com/stretchr/testify/require"
 	"os"
 	"os/exec"
@@ -9,11 +10,10 @@ import (
 
 func TestNuget(t *testing.T) {
 	testNugetRepoKey := getRepoListFromDefaultServer("nuget")[0].Key
-	err := handleNuget(
+	err := handleNuget(context.Background(),
 		SetMeUpConfiguration{
-			repositoryKey: testNugetRepoKey,
 			serverDetails: serverDetails,
-			repoDetails: RepoDetails{
+			repoDetails: &RepoDetails{
 				PackageType: "nuget",
 				Key:         testNugetRepoKey,
 			},
@@ -31,11 +31,10 @@ func TestNuget(t *testing.T) {
 }
 
 func TestNugetErr(t *testing.T) {
-	err := handleNuget(
+	err := handleNuget(context.Background(),
 		SetMeUpConfiguration{
-			repositoryKey: "do-not-exists",
 			serverDetails: serverDetails,
-			repoDetails: RepoDetails{
+			repoDetails: &RepoDetails{
 				PackageType: "nuget",
 				Key:         "do-not-exists",
 			},

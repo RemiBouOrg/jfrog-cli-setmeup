@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/assets"
@@ -9,7 +10,7 @@ import (
 	"os"
 )
 
-func handleMaven(configuration SetMeUpConfiguration) error {
+func handleMaven(ctx context.Context, configuration SetMeUpConfiguration) error {
 	const settingsFilePath = "%s/.m2/settings.xml"
 	templateData := struct {
 		UserName string
@@ -18,8 +19,8 @@ func handleMaven(configuration SetMeUpConfiguration) error {
 		ApiKey   string
 	}{
 		UserName: configuration.serverDetails.User,
-		Url:      fmt.Sprintf("%s%s", configuration.serverDetails.ArtifactoryUrl, configuration.repositoryKey),
-		RepoKey:  configuration.repositoryKey,
+		Url:      fmt.Sprintf("%s%s", configuration.serverDetails.ArtifactoryUrl, configuration.repoDetails.Key),
+		RepoKey:  configuration.repoDetails.Key,
 		ApiKey:   configuration.serverDetails.Password,
 	}
 	template, err := assets.MavenSettingsTemplate()
@@ -51,6 +52,6 @@ func handleMaven(configuration SetMeUpConfiguration) error {
 	if err != nil {
 		return err
 	}
-	log.Info(fmt.Sprintf("Repo %s correctly set in %s", configuration.repositoryKey, userMavenFile))
+	log.Info(fmt.Sprintf("Repo %s correctly set in %s", configuration.repoDetails.Key, userMavenFile))
 	return nil
 }

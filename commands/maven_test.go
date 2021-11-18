@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -15,11 +16,10 @@ func TestMavenSetMeUp(t *testing.T) {
 	err = os.Mkdir(mavenDir, 0777)
 	require.NoError(t, err)
 	_ = os.Setenv("HOME", dir)
-	err = handleMaven(
+	err = handleMaven(context.Background(),
 		SetMeUpConfiguration{
-			repositoryKey: testMavenRepoKey,
 			serverDetails: serverDetails,
-			repoDetails: RepoDetails{
+			repoDetails: &RepoDetails{
 				PackageType: "maven",
 				Key:         testMavenRepoKey,
 			},

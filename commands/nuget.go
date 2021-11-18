@@ -2,27 +2,28 @@ package commands
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"github.com/pkg/errors"
 	"os/exec"
 )
 
-func handleNuget(configuration SetMeUpConfiguration) error {
-	feedUrl := fmt.Sprintf("api/nuget/v3/%s", configuration.repositoryKey)
+func handleNuget(ctx context.Context, configuration SetMeUpConfiguration) error {
+	feedUrl := fmt.Sprintf("api/nuget/v3/%s", configuration.repoDetails.Key)
 	get, _, err := configuration.artifactoryHttpGet(feedUrl)
 	if err != nil {
 		return err
 	}
 	if get.StatusCode == 404 {
-		log.Info(fmt.Sprintf("%s is not a v3 nuget repository", configuration.repositoryKey))
-		feedUrl = fmt.Sprintf("api/nuget/%s", configuration.repositoryKey)
+		log.Info(fmt.Sprintf("%s is not a v3 nuget repository", configuration.repoDetails.Key))
+		feedUrl = fmt.Sprintf("api/nuget/%s", configuration.repoDetails.Key)
 		get, _, err := configuration.artifactoryHttpGet(feedUrl)
 		if err != nil || get.StatusCode != 200 {
-			return fmt.Errorf("cannot find nuget repo version %s", configuration.repositoryKey)
+			return fmt.Errorf("cannot find nuget repo version %s", configuration.repoDetails.Key)
 		}
 	} else {
-		log.Info(fmt.Sprintf("%s is a v3 nuget repository", configuration.repositoryKey))
+		log.Info(fmt.Sprintf("%s is a v3 nuget repository", configuration.repoDetails.Key))
 	}
 
 	_ = exec.Command("nuget", "sources", "Remove",

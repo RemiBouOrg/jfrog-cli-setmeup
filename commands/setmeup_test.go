@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
@@ -47,16 +48,16 @@ func getRepoListFromDefaultServer(repoType string) []RepoDetails {
 }
 
 func TestFailIfServerIdDoesntExists(t *testing.T) {
-	err := setMeUpCommand("test", "donotexists")
+	err := setMeUpCommand(context.Background(),"test", "donotexists")
 	require.Error(t, err)
 }
 
 func TestFailsIfRepoDoesntExists(t *testing.T) {
-	err := setMeUpCommand(testMavenRepoKey+"$$$", "")
+	err := setMeUpCommand(context.Background(),testMavenRepoKey+"$$$", "")
 	require.Error(t, err)
 }
 
 func TestOkIfRepoExists(t *testing.T) {
-	err := setMeUpCommand(testMavenRepoKey, "")
+	err := setMeUpCommand(context.Background(),testMavenRepoKey, "")
 	require.NoError(t, err)
 }
