@@ -12,6 +12,7 @@ import (
 )
 
 var testMavenRepoKey = ""
+var testNpmRepoKey = ""
 var serverDetails *config.ServerDetails
 
 func TestMain(m *testing.M) {
@@ -22,6 +23,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	testMavenRepoKey = getRepoListFromDefaultServer("maven")[0].Key
+	testNpmRepoKey = getRepoListFromDefaultServer("npm")[0].Key
 	m.Run()
 }
 
