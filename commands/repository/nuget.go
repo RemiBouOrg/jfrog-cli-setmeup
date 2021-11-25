@@ -1,9 +1,10 @@
-package commands
+package repository
 
 import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"github.com/pkg/errors"
 	"os/exec"
@@ -11,14 +12,14 @@ import (
 
 func handleNuget(ctx context.Context, configuration SetMeUpConfiguration) error {
 	feedUrl := fmt.Sprintf("api/nuget/v3/%s", configuration.repoDetails.Key)
-	get, _, err := configuration.artifactoryHttpGet(feedUrl)
+	get, _, err := artifactory.ArtifactoryHttpGet(configuration.serverDetails, feedUrl)
 	if err != nil {
 		return err
 	}
 	if get.StatusCode == 404 {
 		log.Info(fmt.Sprintf("%s is not a v3 nuget repository", configuration.repoDetails.Key))
 		feedUrl = fmt.Sprintf("api/nuget/%s", configuration.repoDetails.Key)
-		get, _, err := configuration.artifactoryHttpGet(feedUrl)
+		get, _, err := artifactory.ArtifactoryHttpGet(configuration.serverDetails, feedUrl)
 		if err != nil || get.StatusCode != 200 {
 			return fmt.Errorf("cannot find nuget repo version %s", configuration.repoDetails.Key)
 		}

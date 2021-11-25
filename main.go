@@ -3,7 +3,8 @@ package main
 import (
 	"github.com/jfrog/jfrog-cli-core/v2/plugins"
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
-	"github.com/jfrog/jfrog-cli-plugin-template/commands"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/environment"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/repository"
 )
 
 func main() {
@@ -21,5 +22,7 @@ func getApp() components.App {
 
 func getCommands() []components.Command {
 	return []components.Command{
-		commands.GetSetMeUpCommand()}
+		repository.GetSetMeUpCommand(),
+		environment.GetEnvInitCommand(),
+	}
 }

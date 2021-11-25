@@ -1,10 +1,11 @@
-package commands
+package repository
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"github.com/pkg/errors"
 	"net/http"
@@ -14,7 +15,7 @@ import (
 )
 
 func handleDocker(ctx context.Context, configuration SetMeUpConfiguration) error {
-	get, jsonBytes, err := configuration.artifactoryHttpGet("api/system/configuration/webServer")
+	get, jsonBytes, err := artifactory.ArtifactoryHttpGet(configuration.serverDetails, "api/system/configuration/webServer")
 	if err != nil {
 		return err
 	}

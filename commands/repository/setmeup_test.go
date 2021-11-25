@@ -1,10 +1,11 @@
-package commands
+package repository
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
 	"github.com/jfrog/jfrog-client-go/http/jfroghttpclient"
 	"github.com/stretchr/testify/require"
 	"net/http"
@@ -27,7 +28,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func getRepoListFromDefaultServer(repoType string) []RepoDetails {
+func getRepoListFromDefaultServer(repoType string) []artifactory.RepoDetails {
 	authConfig, err := serverDetails.CreateArtAuthConfig()
 	if err != nil {
 		panic(err)
@@ -44,22 +45,22 @@ func getRepoListFromDefaultServer(repoType string) []RepoDetails {
 	if get.StatusCode != http.StatusOK {
 		panic(fmt.Errorf("unexpected http status when getting repositories : %d", get.StatusCode))
 	}
-	repos := &[]RepoDetails{}
+	repos := &[]artifactory.RepoDetails{}
 	err = json.Unmarshal(body, repos)
 	return *repos
 }
 
 func TestFailIfServerIdDoesntExists(t *testing.T) {
-	err := setMeUpCommand(context.Background(),"test", "donotexists")
+	err := setMeUpCommand(context.Background(), []string{"test"}, "donotexists")
 	require.Error(t, err)
 }
 
 func TestFailsIfRepoDoesntExists(t *testing.T) {
-	err := setMeUpCommand(context.Background(),testMavenRepoKey+"$$$", "")
+	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey+"$$$"}, "")
 	require.Error(t, err)
 }
 
 func TestOkIfRepoExists(t *testing.T) {
-	err := setMeUpCommand(context.Background(),testMavenRepoKey, "")
+	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey}, "")
 	require.NoError(t, err)
 }
