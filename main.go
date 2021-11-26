@@ -5,6 +5,7 @@ import (
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/environment"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/repository"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/show"
 )
 
 func main() {
@@ -24,5 +25,6 @@ func getCommands() []components.Command {
 	return []components.Command{
 		repository.GetSetMeUpCommand(),
 		environment.GetEnvInitCommand(),
+		show.GetShowCommand(),
 	}
 }
