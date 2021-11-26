@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
 	"github.com/stretchr/testify/require"
 	"os"
 	"os/exec"
@@ -12,8 +13,8 @@ func TestNuget(t *testing.T) {
 	testNugetRepoKey := getRepoListFromDefaultServer("nuget")[0].Key
 	err := handleNuget(context.Background(),
 		SetMeUpConfiguration{
-			serverDetails: serverDetails,
-			repoDetails: &RepoDetails{
+			ServerDetails: serverDetails,
+			RepoDetails: &artifactory.RepoDetails{
 				PackageType: "nuget",
 				Key:         testNugetRepoKey,
 			},
@@ -33,8 +34,8 @@ func TestNuget(t *testing.T) {
 func TestNugetErr(t *testing.T) {
 	err := handleNuget(context.Background(),
 		SetMeUpConfiguration{
-			serverDetails: serverDetails,
-			repoDetails: &RepoDetails{
+			ServerDetails: serverDetails,
+			RepoDetails: &artifactory.RepoDetails{
 				PackageType: "nuget",
 				Key:         "do-not-exists",
 			},

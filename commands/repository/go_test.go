@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"os"
@@ -26,8 +27,8 @@ func Test_handleGo(t *testing.T) {
 			name: "should have go proxy for valid parameters - https",
 			args: args{
 				configuration: SetMeUpConfiguration{
-					serverDetails: &config.ServerDetails{ArtifactoryUrl: "https://example.com/artifactory", User: "foo", Password: "bar"},
-					repoDetails:   &RepoDetails{Key: "go-local"},
+					ServerDetails: &config.ServerDetails{ArtifactoryUrl: "https://example.com/artifactory", User: "foo", Password: "bar"},
+					RepoDetails:   &artifactory.RepoDetails{Key: "go-local"},
 				},
 			},
 			want: "https://foo:bar@example.com/artifactory/api/go/go-local",
@@ -37,8 +38,8 @@ func Test_handleGo(t *testing.T) {
 			name: "should have go proxy for valid parameters - http",
 			args: args{
 				configuration: SetMeUpConfiguration{
-					serverDetails: &config.ServerDetails{ArtifactoryUrl: "http://example.com/artifactory", User: "foo", Password: "bar"},
-					repoDetails:   &RepoDetails{Key: "go-local"},
+					ServerDetails: &config.ServerDetails{ArtifactoryUrl: "http://example.com/artifactory", User: "foo", Password: "bar"},
+					RepoDetails:   &artifactory.RepoDetails{Key: "go-local"},
 				},
 			},
 			want: "http://foo:bar@example.com/artifactory/api/go/go-local",
@@ -48,8 +49,8 @@ func Test_handleGo(t *testing.T) {
 			name: "should fail on invalid arti url",
 			args: args{
 				configuration: SetMeUpConfiguration{
-					serverDetails: &config.ServerDetails{ArtifactoryUrl: "example.com/artifactory", User: "foo", Password: "bar"},
-					repoDetails:   &RepoDetails{Key: "go-local"},
+					ServerDetails: &config.ServerDetails{ArtifactoryUrl: "example.com/artifactory", User: "foo", Password: "bar"},
+					RepoDetails:   &artifactory.RepoDetails{Key: "go-local"},
 				},
 			},
 			wantErr: true,

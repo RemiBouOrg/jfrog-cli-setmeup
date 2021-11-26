@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
@@ -116,8 +117,8 @@ func Test_FindDockerHostPort(t *testing.T) {
 			webServerJsonStr, _ := json.Marshal(test.webServerJson)
 			host, port, err := findDockerHostAndPort(
 				SetMeUpConfiguration{
-					serverDetails: &config.ServerDetails{ArtifactoryUrl: test.artiUrl},
-					repoDetails:   &RepoDetails{Key: test.repoKey},
+					ServerDetails: &config.ServerDetails{ArtifactoryUrl: test.artiUrl},
+					RepoDetails:   &artifactory.RepoDetails{Key: test.repoKey},
 				},
 				&http.Response{StatusCode: test.webServerStatusCode},
 				webServerJsonStr)
@@ -135,8 +136,8 @@ func Test_handleDocker(t *testing.T) {
 	testDockerRepo := getRepoListFromDefaultServer("docker")[0].Key
 	err := handleDocker(context.Background(),
 		SetMeUpConfiguration{
-			serverDetails: serverDetails,
-			repoDetails: &RepoDetails{
+			ServerDetails: serverDetails,
+			RepoDetails: &artifactory.RepoDetails{
 				PackageType: "docker",
 				Key:         testDockerRepo,
 			},

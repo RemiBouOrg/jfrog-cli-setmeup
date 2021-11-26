@@ -1,12 +1,15 @@
-package environment
+package jfrogconfig
 
 import (
 	"errors"
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 	"github.com/jfrog/jfrog-client-go/utils/io/fileutils"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 )
+
+const jfrogConfFilePath = "./.jfrogconf"
 
 func FindRepoKeys(c *components.Context, envName string) ([]string, error) {
 	if len(c.Arguments) >= 1 {
@@ -37,7 +40,7 @@ func extractValues(repoKeys *RepoTypeToName) []string {
 }
 
 func findRepoKeyFromConfFile(envName string) (*RepoTypeToName, error) {
-	confFile, err := readCurrentConfFile()
+	confFile, err := ReadCurrentConfFile()
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +49,7 @@ func findRepoKeyFromConfFile(envName string) (*RepoTypeToName, error) {
 	return &repoTypeToName, nil
 }
 
-func readCurrentConfFile() (JFrogConfFile, error) {
+func ReadCurrentConfFile() (JFrogConfFile, error) {
 	confFileContent, err := fileutils.ReadFile(jfrogConfFilePath)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil
@@ -63,3 +66,6 @@ func readCurrentConfFile() (JFrogConfFile, error) {
 	return confFile, nil
 }
 
+func WriteConfigFile(confContent []byte) error {
+	return ioutil.WriteFile(jfrogConfFilePath, confContent, 0644)
+}

@@ -6,15 +6,13 @@ import (
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/commons"
+	"github.com/jfrog/jfrog-cli-plugin-template/jfrogconfig"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"strconv"
 )
 
-const jfrogConfFilePath = "./.jfrogconf"
 
-const EnvNameFlag = "env-name"
-const ServerIdFlag = "server-id"
 
 func GetEnvInitCommand() components.Command {
 	return components.Command{
@@ -22,13 +20,13 @@ func GetEnvInitCommand() components.Command {
 		Description: "Store repository config on the current dir to share with the team members",
 		Aliases:     []string{"i"},
 		Arguments:   getInitEnvArguments(),
-		Flags:       getInitEnvFlags(),
+		Flags:       getEnvFlags(),
 		Action: func(c *components.Context) error {
 			if len(c.Arguments) != 1 {
 				return errors.New("Wrong number of arguments. Expected: 1, " + "Received: " + strconv.Itoa(len(c.Arguments)))
 			}
 
-			return InitEnv(c.Arguments[0], c.GetStringFlagValue(ServerIdFlag), c.GetStringFlagValue(EnvNameFlag))
+			return InitEnv(c.Arguments[0], c.GetStringFlagValue(commons.ServerIdFlag), c.GetStringFlagValue(commons.EnvNameFlag))
 		},
 	}
 }
@@ -42,15 +40,15 @@ func getInitEnvArguments() []components.Argument {
 	}
 }
 
-func getInitEnvFlags() []components.Flag {
+func getEnvFlags() []components.Flag {
 	return []components.Flag{
 		components.StringFlag{
-			Name:         ServerIdFlag,
+			Name:         commons.ServerIdFlag,
 			Description:  "The JFrog Platform you want to use, if not set then the default one is used",
 			DefaultValue: "",
 		},
 		components.StringFlag{
-			Name:         EnvNameFlag,
+			Name:         commons.EnvNameFlag,
 			Description:  "The environment you want to use, if not set then the default one is used",
 			DefaultValue: "default",
 		},
@@ -67,16 +65,16 @@ func InitEnv(repoKey string, serverId string, envName string) error {
 		return err
 	}
 
-	confFile, err := readCurrentConfFile()
+	confFile, err := jfrogconfig.ReadCurrentConfFile()
 	if err != nil {
 		return err
 	}
 	if confFile == nil {
-		confFile = JFrogConfFile{}
+		confFile = jfrogconfig.JFrogConfFile{}
 	}
 
 	if confFile[envName] == nil {
-		confFile[envName] = RepoTypeToName{}
+		confFile[envName] = jfrogconfig.RepoTypeToName{}
 	}
 
 	confFile[envName][repoDetails.PackageType] = repoKey
@@ -85,5 +83,5 @@ func InitEnv(repoKey string, serverId string, envName string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(jfrogConfFilePath, confContent, 0644)
+	return jfrogconfig.WriteConfigFile(confContent)
 }

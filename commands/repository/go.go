@@ -14,14 +14,14 @@ import (
 )
 
 func handleGo(ctx context.Context, configuration SetMeUpConfiguration) error {
-	urlParts := strings.SplitN(configuration.serverDetails.ArtifactoryUrl, "://", 2)
+	urlParts := strings.SplitN(configuration.ServerDetails.ArtifactoryUrl, "://", 2)
 	if len(urlParts) < 2 {
-		return fmt.Errorf("cannot parse artifactory url %s", configuration.serverDetails.ArtifactoryUrl)
+		return fmt.Errorf("cannot parse artifactory url %s", configuration.ServerDetails.ArtifactoryUrl)
 	}
 
-	artiUrl := fmt.Sprintf("%s://%s:%s@%s", urlParts[0], configuration.serverDetails.User, configuration.serverDetails.Password, urlParts[1])
+	artiUrl := fmt.Sprintf("%s://%s:%s@%s", urlParts[0], configuration.ServerDetails.User, configuration.ServerDetails.Password, urlParts[1])
 
-	goProxy := fmt.Sprintf("%s/api/go/%s", artiUrl , configuration.repoDetails.Key)
+	goProxy := fmt.Sprintf("%s/api/go/%s", artiUrl , configuration.RepoDetails.Key)
 
 	paths := []string{path.Join(os.Getenv("GOROOT"), "bin"), "", "/usr/local/bin/", "/usr/bin/"}
 
@@ -44,7 +44,7 @@ func handleGo(ctx context.Context, configuration SetMeUpConfiguration) error {
 		return err
 	}
 
-	log.Info(fmt.Sprintf("Repo %s set as GOPROXY", configuration.repoDetails.Key))
+	log.Info(fmt.Sprintf("Repo %s set as GOPROXY", configuration.RepoDetails.Key))
 	return nil
 }
 

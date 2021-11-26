@@ -7,7 +7,8 @@ import (
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
-	"github.com/jfrog/jfrog-cli-plugin-template/commands/environment"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/commons"
+	"github.com/jfrog/jfrog-cli-plugin-template/jfrogconfig"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 )
 
@@ -19,11 +20,11 @@ func GetSetMeUpCommand() components.Command {
 		Arguments:   getRepositorySetMeUpArguments(),
 		Flags:       getRepositorySetMeUpFlags(),
 		Action: func(c *components.Context) error {
-			repoKeys, err := environment.FindRepoKeys(c, c.GetStringFlagValue(environment.EnvNameFlag))
+			repoKeys, err := jfrogconfig.FindRepoKeys(c, c.GetStringFlagValue(commons.EnvNameFlag))
 			if err != nil {
 				return err
 			}
-			return setMeUpCommand(context.Background(), repoKeys, c.GetStringFlagValue(environment.ServerIdFlag))
+			return setMeUpCommand(context.Background(), repoKeys, c.GetStringFlagValue(commons.ServerIdFlag))
 		},
 	}
 }
@@ -40,12 +41,12 @@ func getRepositorySetMeUpArguments() []components.Argument {
 func getRepositorySetMeUpFlags() []components.Flag {
 	return []components.Flag{
 		components.StringFlag{
-			Name:         environment.ServerIdFlag,
+			Name:         commons.ServerIdFlag,
 			Description:  "The Jfrog Platform you want to use, if not set then the default one is used",
 			DefaultValue: "",
 		},
 		components.StringFlag{
-			Name:         environment.EnvNameFlag,
+			Name:         commons.EnvNameFlag,
 			Description:  "The environment you want to use, if not set then the default one is used",
 			DefaultValue: "default",
 		},
@@ -53,11 +54,11 @@ func getRepositorySetMeUpFlags() []components.Flag {
 }
 
 type SetMeUpConfiguration struct {
-	serverDetails *config.ServerDetails
-	repoDetails   *artifactory.RepoDetails
+	ServerDetails *config.ServerDetails
+	RepoDetails   *artifactory.RepoDetails
 }
 
-var handlers = map[string]func(context.Context, SetMeUpConfiguration) error{
+var Handlers = map[string]func(context.Context, SetMeUpConfiguration) error{
 	repository.Maven:  handleMaven,
 	repository.Nuget:  handleNuget,
 	repository.Docker: handleDocker,
@@ -71,16 +72,16 @@ func setMeUpCommand(ctx context.Context, repoKeys []string, serverId string) err
 		if err != nil {
 			return fmt.Errorf("unable to get server details : %w", err)
 		}
-		conf.serverDetails = serverDetails
-		conf.repoDetails, err = artifactory.GetRepoDetails(conf.serverDetails, repoKey)
+		conf.ServerDetails = serverDetails
+		conf.RepoDetails, err = artifactory.GetRepoDetails(conf.ServerDetails, repoKey)
 		if err != nil {
 			return err
 		}
-		handler, hasHandler := handlers[conf.repoDetails.PackageType]
+		handler, hasHandler := Handlers[conf.RepoDetails.PackageType]
 		if !hasHandler {
-			return fmt.Errorf("%s package type is not handled", conf.repoDetails.PackageType)
+			return fmt.Errorf("%s package type is not handled", conf.RepoDetails.PackageType)
 		}
-		log.Info(fmt.Sprintf("Setting up repository %s of type %s on %s", repoKey, conf.repoDetails.PackageType, conf.serverDetails.ArtifactoryUrl))
+		log.Info(fmt.Sprintf("Setting up repository %s of type %s on %s", repoKey, conf.RepoDetails.PackageType, conf.ServerDetails.ArtifactoryUrl))
 		err = handler(ctx, conf)
 		if err != nil {
 			log.Error(fmt.Sprintf("An error occured : %v", err))

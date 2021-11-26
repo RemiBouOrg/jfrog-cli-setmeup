@@ -18,10 +18,10 @@ func handleMaven(ctx context.Context, configuration SetMeUpConfiguration) error 
 		RepoKey  string
 		ApiKey   string
 	}{
-		UserName: configuration.serverDetails.User,
-		Url:      fmt.Sprintf("%s%s", configuration.serverDetails.ArtifactoryUrl, configuration.repoDetails.Key),
-		RepoKey:  configuration.repoDetails.Key,
-		ApiKey:   configuration.serverDetails.Password,
+		UserName: configuration.ServerDetails.User,
+		Url:      fmt.Sprintf("%s%s", configuration.ServerDetails.ArtifactoryUrl, configuration.RepoDetails.Key),
+		RepoKey:  configuration.RepoDetails.Key,
+		ApiKey:   configuration.ServerDetails.Password,
 	}
 	template, err := assets.MavenSettingsTemplate()
 	if err != nil {
@@ -52,6 +52,6 @@ func handleMaven(ctx context.Context, configuration SetMeUpConfiguration) error 
 	if err != nil {
 		return err
 	}
-	log.Info(fmt.Sprintf("Repo %s correctly set in %s", configuration.repoDetails.Key, userMavenFile))
+	log.Info(fmt.Sprintf("Repo %s correctly set in %s", configuration.RepoDetails.Key, userMavenFile))
 	return nil
 }
