@@ -1,4 +1,4 @@
-package environment
+package jfrogconfig
 
 type JFrogConfFile map[string]RepoTypeToName
 

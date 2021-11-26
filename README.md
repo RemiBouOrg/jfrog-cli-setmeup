@@ -1,4 +1,14 @@
-# hello-frog
+# jfrog setmeup
+
+## build
+```
+make build
+```
+
+## test
+```
+make test
+```
 
 ## About this plugin
 This plugin is a template and a functioning example for a basic JFrog CLI plugin. 

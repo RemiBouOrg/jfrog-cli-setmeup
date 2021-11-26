@@ -1,0 +1,16 @@
+{
+  "servers": [
+    {
+      "url": "https://maxim.jfrog.io/",
+      "artifactoryUrl": "https://maxim.jfrog.io/artifactory/",
+      "distributionUrl": "https://maxim.jfrog.io/distribution/",
+      "xrayUrl": "https://maxim.jfrog.io/xray/",
+      "missionControlUrl": "https://maxim.jfrog.io/mc/",
+      "pipelinesUrl": "https://maxim.jfrog.io/pipelines/",
+      "user": "anonymous",
+      "serverId": "jfrog-set-me-up-test",
+      "isDefault": true
+    }
+  ],
+  "version": "5"
+}

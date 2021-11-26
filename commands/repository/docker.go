@@ -15,7 +15,7 @@ import (
 )
 
 func handleDocker(ctx context.Context, configuration SetMeUpConfiguration) error {
-	get, jsonBytes, err := artifactory.ArtifactoryHttpGet(configuration.serverDetails, "api/system/configuration/webServer")
+	get, jsonBytes, err := artifactory.ArtifactoryHttpGet(configuration.ServerDetails, "api/system/configuration/webServer")
 	if err != nil {
 		return err
 	}
@@ -23,7 +23,7 @@ func handleDocker(ctx context.Context, configuration SetMeUpConfiguration) error
 	if err != nil {
 		return err
 	}
-	authConfig, _ := configuration.serverDetails.CreateArtAuthConfig()
+	authConfig, _ := configuration.ServerDetails.CreateArtAuthConfig()
 	command := exec.Command("docker",
 		"login",
 		"-u", authConfig.GetUser(),
@@ -42,7 +42,7 @@ func handleDocker(ctx context.Context, configuration SetMeUpConfiguration) error
 func findDockerHostAndPort(configuration SetMeUpConfiguration, webServerResponse *http.Response, webServerJson []byte) (string, string, error) {
 
 	if webServerResponse.StatusCode == 403 {
-		parseArtiUrl, err := url.Parse(configuration.serverDetails.ArtifactoryUrl)
+		parseArtiUrl, err := url.Parse(configuration.ServerDetails.ArtifactoryUrl)
 		if err != nil {
 			return "", "", err
 		}
@@ -64,7 +64,7 @@ func findDockerHostAndPort(configuration SetMeUpConfiguration, webServerResponse
 		}
 		switch proxySetting.DockerReverseProxyMethod {
 		case "SUBDOMAIN":
-			host := fmt.Sprintf("%s.%s", configuration.repoDetails.Key, proxySetting.ServerName)
+			host := fmt.Sprintf("%s.%s", configuration.RepoDetails.Key, proxySetting.ServerName)
 			log.Info(fmt.Sprintf("Using subdomain per repository technique with %s:%s", host, port))
 			return host, port, nil
 		case "REPOPATHPREFIX":
@@ -74,14 +74,14 @@ func findDockerHostAndPort(configuration SetMeUpConfiguration, webServerResponse
 		case "PORTPERREPO":
 			var host string
 			for _, portConfig := range proxySetting.ReverseProxyRepositories.ReverseProxyRepoConfigs {
-				if portConfig.RepoRef == configuration.repoDetails.Key {
+				if portConfig.RepoRef == configuration.RepoDetails.Key {
 					host = portConfig.ServerName
 					port = strconv.Itoa(portConfig.Port)
 					break
 				}
 			}
 			if host == "" {
-				return "", "", fmt.Errorf("unable to find port config for %s", configuration.repoDetails.Key)
+				return "", "", fmt.Errorf("unable to find port config for %s", configuration.RepoDetails.Key)
 			}
 			log.Info(fmt.Sprintf("Using path prefix per repository technique with %s:%s", host, port))
 			return host, port, nil

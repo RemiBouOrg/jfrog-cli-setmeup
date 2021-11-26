@@ -17,15 +17,15 @@ import (
 func handleNpm(configuration SetMeUpConfiguration) error {
 	const settingsFilePath = "%s/.npmrc"
 	const npmTemplate = "//%s%s/:_authToken=%s" // first param - artifactory url, second param - repo key, third param - token
-	if configuration.repoDetails.PackageType != "npm" {
-		return fmt.Errorf("unexpected repo type. Expected 'npm' but was: '%v'", configuration.repoDetails.PackageType)
+	if configuration.RepoDetails.PackageType != "npm" {
+		return fmt.Errorf("unexpected repo type. Expected 'npm' but was: '%v'", configuration.RepoDetails.PackageType)
 	}
 	dirname, err := os.UserHomeDir()
 	if err != nil {
 		return err
 	}
 	npmrcFile := fmt.Sprintf(settingsFilePath, dirname)
-	npmrcContent := []byte(fmt.Sprintf(npmTemplate, configuration.serverDetails.ArtifactoryUrl, configuration.repoDetails.Key, configuration.serverDetails.Password))
+	npmrcContent := []byte(fmt.Sprintf(npmTemplate, configuration.ServerDetails.ArtifactoryUrl, configuration.RepoDetails.Key, configuration.ServerDetails.Password))
 	if _, err := os.Stat(npmrcFile); !errors.Is(err, os.ErrNotExist) { // if exists
 		data, err := ioutil.ReadFile(npmrcFile)
 		if err != nil {
@@ -47,6 +47,6 @@ func handleNpm(configuration SetMeUpConfiguration) error {
 		log.Error(fmt.Sprintf("Failed to write npmrc file to '%s' with error: %+v", npmrcFile, err))
 		return err
 	}
-	log.Info(fmt.Sprintf("Npm repo '%v' configured successfully at '%s'", configuration.repoDetails.Key, npmrcFile))
+	log.Info(fmt.Sprintf("Npm repo '%v' configured successfully at '%s'", configuration.RepoDetails.Key, npmrcFile))
 	return nil
 }

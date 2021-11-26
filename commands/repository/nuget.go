@@ -11,30 +11,30 @@ import (
 )
 
 func handleNuget(ctx context.Context, configuration SetMeUpConfiguration) error {
-	feedUrl := fmt.Sprintf("api/nuget/v3/%s", configuration.repoDetails.Key)
-	get, _, err := artifactory.ArtifactoryHttpGet(configuration.serverDetails, feedUrl)
+	feedUrl := fmt.Sprintf("api/nuget/v3/%s", configuration.RepoDetails.Key)
+	get, _, err := artifactory.ArtifactoryHttpGet(configuration.ServerDetails, feedUrl)
 	if err != nil {
 		return err
 	}
 	if get.StatusCode == 404 {
-		log.Info(fmt.Sprintf("%s is not a v3 nuget repository", configuration.repoDetails.Key))
-		feedUrl = fmt.Sprintf("api/nuget/%s", configuration.repoDetails.Key)
-		get, _, err := artifactory.ArtifactoryHttpGet(configuration.serverDetails, feedUrl)
+		log.Info(fmt.Sprintf("%s is not a v3 nuget repository", configuration.RepoDetails.Key))
+		feedUrl = fmt.Sprintf("api/nuget/%s", configuration.RepoDetails.Key)
+		get, _, err := artifactory.ArtifactoryHttpGet(configuration.ServerDetails, feedUrl)
 		if err != nil || get.StatusCode != 200 {
-			return fmt.Errorf("cannot find nuget repo version %s", configuration.repoDetails.Key)
+			return fmt.Errorf("cannot find nuget repo version %s", configuration.RepoDetails.Key)
 		}
 	} else {
-		log.Info(fmt.Sprintf("%s is a v3 nuget repository", configuration.repoDetails.Key))
+		log.Info(fmt.Sprintf("%s is a v3 nuget repository", configuration.RepoDetails.Key))
 	}
 
 	_ = exec.Command("nuget", "sources", "Remove",
 		"-Name", "Artifactory",
 		"-NonInteractive",
 	).Run()
-	authConfig, _ := configuration.serverDetails.CreateArtAuthConfig()
+	authConfig, _ := configuration.ServerDetails.CreateArtAuthConfig()
 	command := exec.Command("nuget", "sources", "Add",
 		"-Name", "Artifactory",
-		"-Source", fmt.Sprintf("%s%s", configuration.serverDetails.ArtifactoryUrl, feedUrl),
+		"-Source", fmt.Sprintf("%s%s", configuration.ServerDetails.ArtifactoryUrl, feedUrl),
 		"-UserName", authConfig.GetUser(),
 		"-Password", authConfig.GetPassword(),
 		"-NonInteractive",

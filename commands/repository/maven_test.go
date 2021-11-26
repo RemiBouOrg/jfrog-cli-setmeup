@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
@@ -18,8 +19,8 @@ func TestMavenSetMeUp(t *testing.T) {
 	_ = os.Setenv("HOME", dir)
 	err = handleMaven(context.Background(),
 		SetMeUpConfiguration{
-			serverDetails: serverDetails,
-			repoDetails: &RepoDetails{
+			ServerDetails: serverDetails,
+			RepoDetails: &artifactory.RepoDetails{
 				PackageType: "maven",
 				Key:         testMavenRepoKey,
 			},
