@@ -42,6 +42,10 @@ var showers = []struct {
 		repository.Nuget,
 		getCurrentNuget,
 	},
+	{
+		repository.Go,
+		getCurrentGolang,
+	},
 }
 
 func showCommand(ctx context.Context) {
