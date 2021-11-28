@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestGetCurrentMaven(t *testing.T) {
-	repos := getCurrentMaven(context.Background())
+func TestGetCurrentNuget(t *testing.T) {
+	repos := getCurrentNuget(context.Background())
 	require.NotEmpty(t, repos)
 }

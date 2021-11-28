@@ -3,6 +3,7 @@ package show
 import (
 	"context"
 	"fmt"
+	"github.com/jfrog/jfrog-cli-core/v2/artifactory/commands/repository"
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
 	"github.com/jfrog/jfrog-client-go/utils/log"
@@ -21,21 +22,39 @@ func GetShowCommand() components.Command {
 	}
 }
 
+type repoSelection struct {
+	url         string
+	serverId    string
+	repoKey     string
+	description string
+	unknown     bool
+}
+
 var showers = []struct {
 	packageType     string
-	getCurrentSetup func(ctx context.Context) (serverId string, repoKey string)
+	getCurrentSetup func(ctx context.Context) []repoSelection
 }{
 	{
-		"maven",
+		repository.Maven,
 		getCurrentMaven,
+	},
+	{
+		repository.Nuget,
+		getCurrentNuget,
 	},
 }
 
 func showCommand(ctx context.Context) {
 	for _, shower := range showers {
-		serverId, repoKey := shower.getCurrentSetup(ctx)
-		if repoKey != "" {
-			log.Info(fmt.Sprintf("%s : %s (%s)", shower.packageType, repoKey, serverId))
+		repos := shower.getCurrentSetup(ctx)
+		if len(repos) > 0 {
+			log.Info(fmt.Sprintf("%s : ", shower.packageType))
+			for _, repo := range repos {
+				if repo.unknown {
+					repo.serverId = "(Unknown)"
+				}
+				log.Info(fmt.Sprintf("%s - %s - %s", repo.serverId, repo.repoKey, repo.description))
+			}
 		} else {
 			log.Debug(fmt.Sprintf("%s : no repository setup", shower.packageType))
 		}
