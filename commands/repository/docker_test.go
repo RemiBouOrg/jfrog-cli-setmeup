@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/commons"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
@@ -13,7 +14,7 @@ import (
 func Test_FindDockerHostPort(t *testing.T) {
 	testData := []struct {
 		name                string
-		webServerJson       proxySettings
+		webServerJson       commons.ProxySettings
 		webServerStatusCode int
 		repoKey             string
 		artiUrl             string
@@ -33,7 +34,7 @@ func Test_FindDockerHostPort(t *testing.T) {
 			repoKey:      "test",
 			expectedHost: "test.google.com",
 			expectedPort: "443",
-			webServerJson: proxySettings{
+			webServerJson: commons.ProxySettings{
 				ServerName:               "google.com",
 				DockerReverseProxyMethod: "SUBDOMAIN",
 				HttpsPort:                443,
@@ -45,7 +46,7 @@ func Test_FindDockerHostPort(t *testing.T) {
 			repoKey:      "test",
 			expectedHost: "test.google.com",
 			expectedPort: "444",
-			webServerJson: proxySettings{
+			webServerJson: commons.ProxySettings{
 				ServerName:               "google.com",
 				DockerReverseProxyMethod: "SUBDOMAIN",
 				HttpsPort:                443,
@@ -59,7 +60,7 @@ func Test_FindDockerHostPort(t *testing.T) {
 			repoKey:      "test",
 			expectedHost: "google.com",
 			expectedPort: "443",
-			webServerJson: proxySettings{
+			webServerJson: commons.ProxySettings{
 				ServerName:               "google.com",
 				DockerReverseProxyMethod: "REPOPATHPREFIX",
 				HttpsPort:                443,
@@ -72,11 +73,11 @@ func Test_FindDockerHostPort(t *testing.T) {
 			repoKey:      "test",
 			expectedHost: "testgoogle.com",
 			expectedPort: "888",
-			webServerJson: proxySettings{
+			webServerJson: commons.ProxySettings{
 				ServerName:               "google.com",
 				DockerReverseProxyMethod: "PORTPERREPO",
-				ReverseProxyRepositories: reverseProxyRepositories{
-					ReverseProxyRepoConfigs: []reverseProxyRepoConfigs{
+				ReverseProxyRepositories: commons.ReverseProxyRepositories{
+					ReverseProxyRepoConfigs: []commons.ReverseProxyRepoConfigs{
 						{RepoRef: "test", Port: 888, ServerName: "testgoogle.com"},
 						{RepoRef: "test2", Port: 999, ServerName: "test3google.com"},
 					}},
@@ -89,11 +90,11 @@ func Test_FindDockerHostPort(t *testing.T) {
 			artiUrl:   "google.com",
 			repoKey:   "test3",
 			expectErr: true,
-			webServerJson: proxySettings{
+			webServerJson: commons.ProxySettings{
 				ServerName:               "google.com",
 				DockerReverseProxyMethod: "PORTPERREPO",
-				ReverseProxyRepositories: reverseProxyRepositories{
-					ReverseProxyRepoConfigs: []reverseProxyRepoConfigs{
+				ReverseProxyRepositories: commons.ReverseProxyRepositories{
+					ReverseProxyRepoConfigs: []commons.ReverseProxyRepoConfigs{
 						{RepoRef: "test", Port: 888, ServerName: "testgoogle.com"},
 						{RepoRef: "test2", Port: 999, ServerName: "test3google.com"},
 					}},
@@ -106,7 +107,7 @@ func Test_FindDockerHostPort(t *testing.T) {
 			artiUrl:   "google.com",
 			repoKey:   "test3",
 			expectErr: true,
-			webServerJson: proxySettings{
+			webServerJson: commons.ProxySettings{
 				ServerName:               "google.com",
 				DockerReverseProxyMethod: "DONTEXISTS",
 			},

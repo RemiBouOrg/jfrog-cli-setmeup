@@ -40,7 +40,7 @@ func getCurrentMaven(ctx context.Context) []repoSelection {
 		if serverId == "" {
 			res = append(res, repoSelection{
 				unknown:     true,
-				serverId:    urlRepository,
+				repoKey:     urlRepository,
 				description: repositoryId,
 			})
 			continue

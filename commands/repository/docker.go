@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/commons"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"github.com/pkg/errors"
 	"net/http"
@@ -52,7 +53,7 @@ func findDockerHostAndPort(configuration SetMeUpConfiguration, webServerResponse
 		return parseArtiUrl.Hostname(), "443", nil
 	} else {
 		var port string
-		proxySetting := proxySettings{}
+		proxySetting := commons.ProxySettings{}
 		err := json.Unmarshal(webServerJson, &proxySetting)
 		if err != nil {
 			return "", "", err
@@ -90,24 +91,4 @@ func findDockerHostAndPort(configuration SetMeUpConfiguration, webServerResponse
 
 		}
 	}
-}
-
-type proxySettings struct {
-	ServerName               string
-	UseHttp                  bool
-	UseHttps                 bool
-	HttpPort                 int
-	HttpsPort                int
-	DockerReverseProxyMethod string
-	ReverseProxyRepositories reverseProxyRepositories
-}
-
-type reverseProxyRepositories struct {
-	ReverseProxyRepoConfigs []reverseProxyRepoConfigs
-}
-
-type reverseProxyRepoConfigs struct {
-	RepoRef    string
-	Port       int
-	ServerName string
 }

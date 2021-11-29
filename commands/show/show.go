@@ -23,7 +23,6 @@ func GetShowCommand() components.Command {
 }
 
 type repoSelection struct {
-	url         string
 	serverId    string
 	repoKey     string
 	description string
@@ -46,16 +45,20 @@ var showers = []struct {
 		repository.Go,
 		getCurrentGolang,
 	},
+	{
+		repository.Docker,
+		getCurrentDocker,
+	},
 }
 
 func showCommand(ctx context.Context) {
 	for _, shower := range showers {
 		repos := shower.getCurrentSetup(ctx)
 		if len(repos) > 0 {
-			log.Info(fmt.Sprintf("%s : ", shower.packageType))
+			log.Info(fmt.Sprintf("%s%s%s", strings.Repeat("-", 7), shower.packageType, strings.Repeat("-", 7)))
 			for _, repo := range repos {
 				if repo.unknown {
-					repo.serverId = "(Unknown)"
+					repo.serverId = "(UNKNOWN)"
 				}
 				log.Info(fmt.Sprintf("%s - %s - %s", repo.serverId, repo.repoKey, repo.description))
 			}
