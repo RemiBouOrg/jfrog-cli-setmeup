@@ -59,7 +59,7 @@ func showCommand(ctx context.Context) {
 	for _, shower := range showers {
 		repos := shower.getCurrentSetup(ctx)
 		if len(repos) > 0 {
-			log.Info(fmt.Sprintf("%s%s%s", strings.Repeat("-", 7), shower.packageType, strings.Repeat("-", 7)))
+			log.Info(fmt.Sprintf("%s %s %s", strings.Repeat("-", 7), shower.packageType, strings.Repeat("-", 7)))
 			for _, repo := range repos {
 				if repo.unknown {
 					repo.serverId = "(UNKNOWN)"
