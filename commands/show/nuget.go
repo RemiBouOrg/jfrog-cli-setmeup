@@ -37,7 +37,6 @@ func getCurrentNuget(ctx context.Context) []repoSelection {
 				repoKey: urlRepository,
 			})
 			continue
-
 		}
 		parsedUrl, err := url.Parse(urlRepository)
 		if err != nil {

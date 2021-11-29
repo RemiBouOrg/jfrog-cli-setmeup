@@ -49,6 +49,10 @@ var showers = []struct {
 		repository.Docker,
 		getCurrentDocker,
 	},
+	{
+		repository.Npm,
+		getCurrentNpm,
+	},
 }
 
 func showCommand(ctx context.Context) {
@@ -60,7 +64,11 @@ func showCommand(ctx context.Context) {
 				if repo.unknown {
 					repo.serverId = "(UNKNOWN)"
 				}
-				log.Info(fmt.Sprintf("%s - %s - %s", repo.serverId, repo.repoKey, repo.description))
+				if repo.description != "" {
+					log.Info(fmt.Sprintf("%s - %s - %s", repo.serverId, repo.repoKey, repo.description))
+				} else {
+					log.Info(fmt.Sprintf("%s - %s", repo.serverId, repo.repoKey))
+				}
 			}
 		} else {
 			log.Debug(fmt.Sprintf("%s : no repository setup", shower.packageType))
