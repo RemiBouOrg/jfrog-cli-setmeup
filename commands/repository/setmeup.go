@@ -16,7 +16,7 @@ func GetSetMeUpCommand() components.Command {
 	return components.Command{
 		Name:        "repository",
 		Description: "Set up your environment to use Artifactory repository",
-		Aliases:     []string{"r"},
+		Aliases:     []string{"r", "repo"},
 		Arguments:   getRepositorySetMeUpArguments(),
 		Flags:       getRepositorySetMeUpFlags(),
 		Action: func(c *components.Context) error {
@@ -25,7 +25,7 @@ func GetSetMeUpCommand() components.Command {
 				return fmt.Errorf("unable to get server details : %w", err)
 			}
 
-			repoKeys, err := jfrogconfig.FindRepoKeys(c, serverDetails, c.GetStringFlagValue(commons.EnvNameFlag))
+			repoKeys, err := jfrogconfig.FindRepoKeys(c, serverDetails)
 			if err != nil {
 				return err
 			}

@@ -13,9 +13,9 @@ import (
 
 func GetEnvInitCommand() components.Command {
 	return components.Command{
-		Name:        "init",
+		Name:        "environment",
 		Description: "Store repository config on the current dir to share with the team members",
-		Aliases:     []string{"i"},
+		Aliases:     []string{"e", "env", "environ"},
 		Arguments:   getInitEnvArguments(),
 		Flags:       getEnvFlags(),
 		Action: func(c *components.Context) error {

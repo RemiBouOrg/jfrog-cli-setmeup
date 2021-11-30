@@ -11,9 +11,9 @@ import (
 	"os"
 )
 
-const jfrogConfFilePath = "./.jfrogconf"
+const jfrogConfFilePath = "./.jfrog-setmeup.yaml"
 
-func FindRepoKeys(c *components.Context, serverDetails *config.ServerDetails, envName string) ([]string, error) {
+func FindRepoKeys(c *components.Context, serverDetails *config.ServerDetails) ([]string, error) {
 	if len(c.Arguments) >= 1 {
 		repoArg := c.Arguments[0]
 		if len(repoArg) > 0 {
