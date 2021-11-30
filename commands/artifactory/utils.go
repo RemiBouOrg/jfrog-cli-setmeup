@@ -39,3 +39,20 @@ func GetRepoDetails(serverDetails *config.ServerDetails, repoKey string) (*RepoD
 	return repoDetails, nil
 }
 
+
+func GetAllRepoNames(serverDetails *config.ServerDetails) ([]*RepoDetails, error) {
+	get, body, err := ArtifactoryHttpGet(serverDetails, fmt.Sprintf("api/repositories"))
+	if err != nil {
+		return nil, err
+	}
+	if get.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("could not find all repositories"))
+	}
+	var repoDetails []*RepoDetails
+	err = json.Unmarshal(body, &repoDetails)
+	if err != nil {
+		return nil, err
+	}
+	return repoDetails, nil
+}
+

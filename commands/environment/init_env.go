@@ -1,18 +1,15 @@
 package environment
 
 import (
-	"errors"
 	"fmt"
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/commons"
 	"github.com/jfrog/jfrog-cli-plugin-template/jfrogconfig"
+	"github.com/jfrog/jfrog-client-go/utils/log"
 	"gopkg.in/yaml.v2"
-	"strconv"
 )
-
-
 
 func GetEnvInitCommand() components.Command {
 	return components.Command{
@@ -22,11 +19,26 @@ func GetEnvInitCommand() components.Command {
 		Arguments:   getInitEnvArguments(),
 		Flags:       getEnvFlags(),
 		Action: func(c *components.Context) error {
-			if len(c.Arguments) != 1 {
-				return errors.New("Wrong number of arguments. Expected: 1, " + "Received: " + strconv.Itoa(len(c.Arguments)))
+			serverId := c.GetStringFlagValue(commons.ServerIdFlag)
+			serverDetails, err := config.GetSpecificConfig(serverId, true, false)
+			if err != nil {
+				return fmt.Errorf("unable to get server details : %w", err)
 			}
 
-			return InitEnv(c.Arguments[0], c.GetStringFlagValue(commons.ServerIdFlag), c.GetStringFlagValue(commons.EnvNameFlag))
+			var repoKey string
+			if len(c.Arguments) == 1 {
+				repoKey = c.Arguments[0]
+			} else {
+				repo, err := commons.FindRepo(serverDetails)
+				if err != nil {
+					return err
+				}
+				if repo != nil {
+					repoKey = repo.Key
+				}
+			}
+
+			return InitEnv(serverDetails, repoKey, c.GetStringFlagValue(commons.EnvNameFlag))
 		},
 	}
 }
@@ -55,11 +67,8 @@ func getEnvFlags() []components.Flag {
 	}
 }
 
-func InitEnv(repoKey string, serverId string, envName string) error {
-	serverDetails, err := config.GetSpecificConfig(serverId, true, false)
-	if err != nil {
-		return fmt.Errorf("unable to get server details : %w", err)
-	}
+func InitEnv(serverDetails *config.ServerDetails, repoKey string, envName string) error {
+
 	repoDetails, err := artifactory.GetRepoDetails(serverDetails, repoKey)
 	if err != nil {
 		return err
@@ -83,5 +92,13 @@ func InitEnv(repoKey string, serverId string, envName string) error {
 		return err
 	}
 
-	return jfrogconfig.WriteConfigFile(confContent)
+	err = jfrogconfig.WriteConfigFile(confContent)
+	if err != nil {
+		return err
+	}
+
+	log.Info(fmt.Sprintf("%s of type %s added to the configuration", repoKey,
+		repoDetails.PackageType))
+
+	return nil
 }

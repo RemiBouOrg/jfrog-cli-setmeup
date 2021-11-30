@@ -25,6 +25,7 @@ func getCommands() []components.Command {
 	return []components.Command{
 		repository.GetSetMeUpCommand(),
 		environment.GetEnvInitCommand(),
+		environment.GetEnvApplyCommand(),
 		show.GetShowCommand(),
 	}
 }

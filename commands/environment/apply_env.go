@@ -1,6 +1,7 @@
 package environment
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
@@ -10,7 +11,6 @@ import (
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/repository"
 	"github.com/jfrog/jfrog-cli-plugin-template/jfrogconfig"
 	"github.com/jfrog/jfrog-client-go/utils/log"
-	"strconv"
 )
 
 func GetEnvApplyCommand() components.Command {
@@ -20,16 +20,13 @@ func GetEnvApplyCommand() components.Command {
 		Aliases:     []string{"a"},
 		Arguments:   []components.Argument{},
 		Flags:       getEnvFlags(),
-		Action: func(c *components.Context) error {
-			if len(c.Arguments) != 1 {
-				return errors.New("Wrong number of arguments. Expected: 1, " + "Received: " + strconv.Itoa(len(c.Arguments)))
-			}
-			return ApplyEnv(c.GetStringFlagValue(commons.ServerIdFlag), c.GetStringFlagValue(commons.EnvNameFlag))
+		Action: func(c *components.Context) (err error) {
+			return ApplyEnv(context.Background(), c.GetStringFlagValue(commons.ServerIdFlag), c.GetStringFlagValue(commons.EnvNameFlag))
 		},
 	}
 }
 
-func ApplyEnv(serverId, envName string) error {
+func ApplyEnv(ctx context.Context, serverId, envName string) error {
 	if envName == "" {
 		log.Debug("env name not provided, fallback to 'default'")
 		envName = "default"
@@ -55,7 +52,7 @@ func ApplyEnv(serverId, envName string) error {
 	}
 
 	for repoType, repoKey := range repoTypeToName {
-		handler, ok := repository.Handlers[repoKey]
+		handler, ok := repository.Handlers[repoType]
 		if !ok {
 			return fmt.Errorf("unsupported repo type '%v'", repoType)
 		}
@@ -66,7 +63,7 @@ func ApplyEnv(serverId, envName string) error {
 				Key:         repoKey,
 			},
 		}
-		err := handler(nil, setMeUpConfiguration)
+		err := handler(ctx, setMeUpConfiguration)
 		if err != nil {
 			return err
 		}

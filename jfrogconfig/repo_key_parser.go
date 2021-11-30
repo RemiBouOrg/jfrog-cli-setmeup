@@ -3,6 +3,8 @@ package jfrogconfig
 import (
 	"errors"
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
+	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/commons"
 	"github.com/jfrog/jfrog-client-go/utils/io/fileutils"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -11,7 +13,7 @@ import (
 
 const jfrogConfFilePath = "./.jfrogconf"
 
-func FindRepoKeys(c *components.Context, envName string) ([]string, error) {
+func FindRepoKeys(c *components.Context, serverDetails *config.ServerDetails, envName string) ([]string, error) {
 	if len(c.Arguments) >= 1 {
 		repoArg := c.Arguments[0]
 		if len(repoArg) > 0 {
@@ -19,13 +21,13 @@ func FindRepoKeys(c *components.Context, envName string) ([]string, error) {
 		}
 	}
 
-	repoKeys, err := findRepoKeyFromConfFile(envName)
+	repo, err := commons.FindRepo(serverDetails)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(*repoKeys) != 0 {
-		return extractValues(repoKeys), nil
+	if repo != nil {
+		return []string{repo.Key}, nil
 	}
 
 	return nil, errors.New("wrong number of arguments. Expected repository key or use jfrog setmeup init <repo-key> to store in the source control")

@@ -20,11 +20,16 @@ func GetSetMeUpCommand() components.Command {
 		Arguments:   getRepositorySetMeUpArguments(),
 		Flags:       getRepositorySetMeUpFlags(),
 		Action: func(c *components.Context) error {
-			repoKeys, err := jfrogconfig.FindRepoKeys(c, c.GetStringFlagValue(commons.EnvNameFlag))
+			serverDetails, err := config.GetSpecificConfig(c.GetStringFlagValue(commons.ServerIdFlag), true, false)
+			if err != nil {
+				return fmt.Errorf("unable to get server details : %w", err)
+			}
+
+			repoKeys, err := jfrogconfig.FindRepoKeys(c, serverDetails, c.GetStringFlagValue(commons.EnvNameFlag))
 			if err != nil {
 				return err
 			}
-			return setMeUpCommand(context.Background(), repoKeys, c.GetStringFlagValue(commons.ServerIdFlag))
+			return setMeUpCommand(context.Background(), repoKeys, serverDetails)
 		},
 	}
 }
@@ -65,13 +70,9 @@ var Handlers = map[string]func(context.Context, SetMeUpConfiguration) error{
 	repository.Go:     handleGo,
 }
 
-func setMeUpCommand(ctx context.Context, repoKeys []string, serverId string) error {
+func setMeUpCommand(ctx context.Context, repoKeys []string, serverDetails *config.ServerDetails) (err error) {
 	for _, repoKey := range repoKeys {
 		var conf = SetMeUpConfiguration{}
-		serverDetails, err := config.GetSpecificConfig(serverId, true, false)
-		if err != nil {
-			return fmt.Errorf("unable to get server details : %w", err)
-		}
 		conf.ServerDetails = serverDetails
 		conf.RepoDetails, err = artifactory.GetRepoDetails(conf.ServerDetails, repoKey)
 		if err != nil {
