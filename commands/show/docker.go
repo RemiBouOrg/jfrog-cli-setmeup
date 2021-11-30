@@ -96,20 +96,20 @@ func findAuthMatchingRepoSelection(auth string, configs map[*config.ServerDetail
 		if settings.DockerReverseProxyMethod == "SUBDOMAIN" {
 			if strings.HasSuffix(host, settings.ServerName) && matchesServerPort(settings, portInt) {
 				return repoSelection{
-					serverId:    details.ServerId,
-					repoKey:     strings.TrimSuffix(host, fmt.Sprintf(".%s", settings.ServerName)),
-					description: "",
-					unknown:     false,
+					ServerId:    details.ServerId,
+					RepoKey:     strings.TrimSuffix(host, fmt.Sprintf(".%s", settings.ServerName)),
+					Description: "",
+					Unknown:     false,
 				}
 			}
 		}
 		if settings.DockerReverseProxyMethod == "REPOPATHPREFIX" || settings.DockerReverseProxyMethod == "CLOUD" {
 			if settings.ServerName == host && matchesServerPort(settings, portInt) {
 				return repoSelection{
-					serverId:    details.ServerId,
-					repoKey:     "(ALL REPOSITORIES)",
-					description: "",
-					unknown:     false,
+					ServerId:    details.ServerId,
+					RepoKey:     "(ALL REPOSITORIES)",
+					Description: "",
+					Unknown:     false,
 				}
 			}
 		}
@@ -117,20 +117,20 @@ func findAuthMatchingRepoSelection(auth string, configs map[*config.ServerDetail
 			for _, repoConfig := range settings.ReverseProxyRepositories.ReverseProxyRepoConfigs {
 				if repoConfig.ServerName == host && repoConfig.Port == portInt {
 					return repoSelection{
-						serverId:    details.ServerId,
-						repoKey:     repoConfig.RepoRef,
-						description: "",
-						unknown:     false,
+						ServerId:    details.ServerId,
+						RepoKey:     repoConfig.RepoRef,
+						Description: "",
+						Unknown:     false,
 					}
 				}
 			}
 		}
 	}
 	return repoSelection{
-		serverId:    "",
-		repoKey:     auth,
-		description: "",
-		unknown:     true,
+		ServerId:    "",
+		RepoKey:     auth,
+		Description: "",
+		Unknown:     true,
 	}
 }
 

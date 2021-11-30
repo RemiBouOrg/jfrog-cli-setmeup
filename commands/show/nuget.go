@@ -33,8 +33,8 @@ func getCurrentNuget(ctx context.Context) []repoSelection {
 		serverId := findServerIdByUrl(urlRepository)
 		if serverId == "" {
 			res = append(res, repoSelection{
-				unknown: true,
-				repoKey: urlRepository,
+				Unknown: true,
+				RepoKey: urlRepository,
 			})
 			continue
 		}
@@ -45,9 +45,9 @@ func getCurrentNuget(ctx context.Context) []repoSelection {
 		}
 		split := strings.Split(parsedUrl.Path, "/")
 		res = append(res, repoSelection{
-			serverId:    serverId,
-			repoKey:     split[len(split)-1],
-			description: "",
+			ServerId:    serverId,
+			RepoKey:     split[len(split)-1],
+			Description: "",
 		})
 	}
 	return res

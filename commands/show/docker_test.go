@@ -32,9 +32,9 @@ func TestGetDockerReposSelectionSubdomainHttpsImplicit(t *testing.T) {
 	)
 	require.Equal(t, []repoSelection{
 		{
-			serverId: "test1",
-			repoKey:  "repo",
-			unknown:  false,
+			ServerId: "test1",
+			RepoKey:  "repo",
+			Unknown:  false,
 		},
 	}, selections)
 }
@@ -58,9 +58,9 @@ func TestGetDockerReposSelectionSubdomainPortExplicit(t *testing.T) {
 	)
 	require.Equal(t, []repoSelection{
 		{
-			serverId: "test1",
-			repoKey:  "repo",
-			unknown:  false,
+			ServerId: "test1",
+			RepoKey:  "repo",
+			Unknown:  false,
 		},
 	}, selections)
 }
@@ -84,9 +84,9 @@ func TestGetDockerReposSelectionSubdomainHttp(t *testing.T) {
 	)
 	require.Equal(t, []repoSelection{
 		{
-			serverId: "test1",
-			repoKey:  "repo",
-			unknown:  false,
+			ServerId: "test1",
+			RepoKey:  "repo",
+			Unknown:  false,
 		},
 	}, selections)
 }
@@ -110,9 +110,9 @@ func TestGetDockerReposSelectionRepoPathPrefix(t *testing.T) {
 	)
 	require.Equal(t, []repoSelection{
 		{
-			serverId: "test1",
-			repoKey:  "(ALL REPOSITORIES)",
-			unknown:  false,
+			ServerId: "test1",
+			RepoKey:  "(ALL REPOSITORIES)",
+			Unknown:  false,
 		},
 	}, selections)
 }
@@ -136,9 +136,9 @@ func TestGetDockerReposSelectionCloud(t *testing.T) {
 	)
 	require.Equal(t, []repoSelection{
 		{
-			serverId: "test1",
-			repoKey:  "(ALL REPOSITORIES)",
-			unknown:  false,
+			ServerId: "test1",
+			RepoKey:  "(ALL REPOSITORIES)",
+			Unknown:  false,
 		},
 	}, selections)
 }
@@ -166,9 +166,9 @@ func TestGetDockerReposSelectionRepoPortPerRepo(t *testing.T) {
 	)
 	require.Equal(t, []repoSelection{
 		{
-			serverId: "test1",
-			repoKey:  "testrepo",
-			unknown:  false,
+			ServerId: "test1",
+			RepoKey:  "testrepo",
+			Unknown:  false,
 		},
 	}, selections)
 }
@@ -196,9 +196,9 @@ func TestGetDockerReposSelectionNoMatch(t *testing.T) {
 	)
 	require.Equal(t, []repoSelection{
 		{
-			serverId: "",
-			repoKey:  "repo.docker.com:777",
-			unknown:  true,
+			ServerId: "",
+			RepoKey:  "repo.docker.com:777",
+			Unknown:  true,
 		},
 	}, selections)
 }

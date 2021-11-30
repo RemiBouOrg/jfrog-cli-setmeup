@@ -24,8 +24,8 @@ func getCurrentNpm(ctx context.Context) []repoSelection {
 	if serverId == "" {
 		return []repoSelection{
 			{
-				unknown: true,
-				repoKey: urlRepository,
+				Unknown: true,
+				RepoKey: urlRepository,
 			},
 		}
 	}
@@ -37,9 +37,9 @@ func getCurrentNpm(ctx context.Context) []repoSelection {
 	split := strings.Split(parsedUrl.Path, "/")
 	return []repoSelection{
 		{
-			serverId:    serverId,
-			repoKey:     split[len(split)-1],
-			description: "",
+			ServerId:    serverId,
+			RepoKey:     split[len(split)-1],
+			Description: "",
 		},
 	}
 }

@@ -25,14 +25,14 @@ func getCurrentGolang(ctx context.Context) []repoSelection {
 	serverId := findServerIdByUrl(parsedUrl.String())
 	if serverId == "" {
 		return []repoSelection{{
-			unknown: true,
-			repoKey: parsedUrl.String(),
+			Unknown: true,
+			RepoKey: parsedUrl.String(),
 		}}
 	}
 	split := strings.Split(parsedUrl.Path, "/")
 	return []repoSelection{{
-		serverId:    serverId,
-		repoKey:     split[len(split)-1],
-		description: "",
+		ServerId:    serverId,
+		RepoKey:     split[len(split)-1],
+		Description: "",
 	}}
 }

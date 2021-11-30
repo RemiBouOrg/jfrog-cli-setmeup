@@ -39,9 +39,9 @@ func getCurrentMaven(ctx context.Context) []repoSelection {
 		serverId := findServerIdByUrl(urlRepository)
 		if serverId == "" {
 			res = append(res, repoSelection{
-				unknown:     true,
-				repoKey:     urlRepository,
-				description: repositoryId,
+				Unknown:     true,
+				RepoKey:     urlRepository,
+				Description: repositoryId,
 			})
 			continue
 		}
@@ -53,16 +53,16 @@ func getCurrentMaven(ctx context.Context) []repoSelection {
 		split := strings.Split(parsedUrl.Path, "/")
 		if len(split) != 3 {
 			res = append(res, repoSelection{
-				unknown:     true,
-				serverId:    urlRepository,
-				description: repositoryId,
+				Unknown:     true,
+				ServerId:    urlRepository,
+				Description: repositoryId,
 			})
 			continue
 		}
 		res = append(res, repoSelection{
-			serverId:    serverId,
-			repoKey:     split[2],
-			description: repositoryId,
+			ServerId:    serverId,
+			RepoKey:     split[2],
+			Description: repositoryId,
 		})
 	}
 	return res

@@ -7,7 +7,10 @@ import (
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
 	"github.com/jfrog/jfrog-client-go/utils/log"
+	"github.com/manifoldco/promptui"
+	"os"
 	"strings"
+	"text/template"
 )
 
 func GetShowCommand() components.Command {
@@ -23,14 +26,14 @@ func GetShowCommand() components.Command {
 }
 
 type repoSelection struct {
-	serverId    string
-	repoKey     string
-	description string
-	unknown     bool
+	ServerId    string
+	RepoKey     string
+	Description string
+	Unknown     bool
 }
 
 var showers = []struct {
-	packageType     string
+	PackageType     string
 	getCurrentSetup func(ctx context.Context) []repoSelection
 }{
 	{
@@ -56,22 +59,25 @@ var showers = []struct {
 }
 
 func showCommand(ctx context.Context) {
+	repoTypeTmpl, _ := template.New("repoType").
+		Funcs(promptui.FuncMap).
+		Parse("{{ .PackageType }} :: \n")
+	repoLineTmpl, _ := template.New("repoLine").
+		Funcs(promptui.FuncMap).
+		Parse("\t{{if .Unknown}}" +
+			"{{ \"unknown\" | printf \"%-10s\" | cyan  }} {{ .RepoKey | yellow }}" +
+			"{{else}}" +
+			"{{ .ServerId | printf \"%-10s\" | green  }} {{ .RepoKey | yellow }}" +
+			"{{end}} {{.Description}}\n")
 	for _, shower := range showers {
 		repos := shower.getCurrentSetup(ctx)
 		if len(repos) > 0 {
-			log.Info(fmt.Sprintf("%s %s %s", strings.Repeat("-", 7), shower.packageType, strings.Repeat("-", 7)))
+			repoTypeTmpl.Execute(os.Stdout, shower)
 			for _, repo := range repos {
-				if repo.unknown {
-					repo.serverId = "(UNKNOWN)"
-				}
-				if repo.description != "" {
-					log.Info(fmt.Sprintf("%s - %s - %s", repo.serverId, repo.repoKey, repo.description))
-				} else {
-					log.Info(fmt.Sprintf("%s - %s", repo.serverId, repo.repoKey))
-				}
+				repoLineTmpl.Execute(os.Stdout, repo)
 			}
 		} else {
-			log.Debug(fmt.Sprintf("%s : no repository setup", shower.packageType))
+			log.Debug(fmt.Sprintf("%s : no repository setup", shower.PackageType))
 		}
 	}
 }
