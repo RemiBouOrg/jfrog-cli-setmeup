@@ -25,7 +25,7 @@ func Test_handleNpmWrongRepoType(t *testing.T) {
 func Test_handleNpmHomeUndefined(t *testing.T) {
 	err := os.Setenv("HOME", "")
 	require.NoError(t, err)
-	err = handleNpm(context.Background(), getConfig())
+	err = handleNpm(context.Background(), getNpmConfig())
 	require.Error(t, err)
 	require.Equal(t, "$HOME is not defined", err.Error())
 }
@@ -33,7 +33,7 @@ func Test_handleNpmHomeUndefined(t *testing.T) {
 func Test_handleNpmNoNpmrcFile(t *testing.T) {
 	home := setTempHome(t)
 
-	err := handleNpm(context.Background(), getConfig())
+	err := handleNpm(context.Background(), getNpmConfig())
 
 	require.NoError(t, err)
 	data, err := os.ReadFile(path.Join(home, ".npmrc"))
@@ -44,13 +44,13 @@ func Test_handleNpmNoNpmrcFile(t *testing.T) {
 
 func Test_handleNpmIdenticalNpmrcFileExists(t *testing.T) {
 	home := setTempHome(t)
-	err := handleNpm(context.Background(), getConfig())
+	err := handleNpm(context.Background(), getNpmConfig())
 	require.NoError(t, err)
 	statsBefore, err := os.Stat(path.Join(home, ".npmrc"))
 	require.NoError(t, err)
 	before := statsBefore.ModTime()
 
-	err = handleNpm(context.Background(), getConfig())
+	err = handleNpm(context.Background(), getNpmConfig())
 	require.NoError(t, err)
 	statesAfter, err := os.Stat(path.Join(home, ".npmrc"))
 	require.NoError(t, err)
@@ -68,7 +68,7 @@ func Test_handleNpmDifferentNpmrcFileExists(t *testing.T) {
 	require.NoError(t, err)
 	before := statsBefore.ModTime()
 
-	err = handleNpm(context.Background(), getConfig())
+	err = handleNpm(context.Background(), getNpmConfig())
 	require.NoError(t, err)
 	statsAfter, err := os.Stat(npmrcPath)
 	require.NoError(t, err)
@@ -80,7 +80,7 @@ func Test_handleNpmDifferentNpmrcFileExists(t *testing.T) {
 	require.Equal(t, 2, len(dirEntries)) // npmrc file and bak file
 }
 
-func getConfig() SetMeUpConfiguration {
+func getNpmConfig() SetMeUpConfiguration {
 	return SetMeUpConfiguration{
 		ServerDetails: serverDetails,
 		RepoDetails: &artifactory.RepoDetails{
