@@ -35,15 +35,15 @@ func RunInteractiveMenu(selectionHeader string, selectionLabel string, values []
 		Items: values,
 		Searcher: func(input string, index int) bool {
 			curr := values[index]
-			return strings.Index(curr.Key + " " + curr.PackageType, input) >= 0
+			return strings.Index(curr.Key+" "+curr.PackageType, input) >= 0
 		},
 		StartInSearchMode: true,
 		Templates: &promptui.SelectTemplates{
 			Active:   "\U0001F438 \u001b[4m{{ .PackageType | red }} :: \u001b[4m{{ .Key | yellow }}",
 			Inactive: "{{ .PackageType | red }} :: {{ .Key | yellow }}",
+			Selected: "{{ .PackageType | red }} :: {{ .Key | yellow }}",
 		},
 	}
 	selected, _, err := selectMenu.Run()
 	return values[selected], err
 }
-
