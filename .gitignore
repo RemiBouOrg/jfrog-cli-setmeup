@@ -16,4 +16,3 @@ jfrog-cli-plugin-template
 
 # IOS
 *.DS_Store
-build/
