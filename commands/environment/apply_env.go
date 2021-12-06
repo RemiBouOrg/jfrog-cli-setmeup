@@ -16,7 +16,7 @@ import (
 func GetEnvApplyCommand() components.Command {
 	return components.Command{
 		Name:        "apply",
-		Description: "Apply repository from config in the current",
+		Description: "Apply repository from config in the current directory",
 		Aliases:     []string{"a"},
 		Arguments:   []components.Argument{},
 		Flags:       getEnvFlags(),

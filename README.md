@@ -46,7 +46,7 @@ Uninstalling a plugin
   [Info] Repo go-virtual set as GOPROXY
 ```
 
-* `environment` - 
+* `environment` - Store repository config on the current dir to share with the team members
     - Arguments:
         - `repoKey` - The repository key you want to use, if not presented, a selection dropdown will be shown. 
     - Flags:
@@ -58,7 +58,7 @@ Uninstalling a plugin
 ```
 ![repository selection](./assets/images/repo-search.png)
 
-* `apply` - 
+* `apply` - Apply repository from config in the current directory
     - Flags:
         - `server-id`: The JFrog Platform you want to use, if not set then the default one is used
         - `env-name`: The environment you want to use, if not set then the default one is used
@@ -68,6 +68,17 @@ Uninstalling a plugin
   
   [Info] Repo go-virtual set as GOPROXY
 ```
+
+## Supported Package Types
+* Maven
+* Go
+* Docker
+* npm
+* NuGet
+
+To use a package type, the corresponding tool should be installed (e.g. Docker requires `docker` in the $PATH). 
+
+Any combination of these package types can be used and stored in the environment config. 
 
 ## Release Notes
 The release notes are available [here](RELEASE.md).
