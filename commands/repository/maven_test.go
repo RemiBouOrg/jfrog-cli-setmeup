@@ -25,8 +25,7 @@ func TestMavenSetMeUpFreshM2(t *testing.T) {
 	err := handleMaven(context.Background(), getMavenConfig())
 
 	require.NoError(t, err)
-	_, err = os.Stat(fmt.Sprintf("%s/settings.xml", mavenDir))
-	require.NoError(t, err)
+	require.FileExists(t, fmt.Sprintf("%s/settings.xml", mavenDir))
 }
 
 func TestMavenSetMeUpSettingsFileExists(t *testing.T) {
