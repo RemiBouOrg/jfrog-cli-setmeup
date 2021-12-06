@@ -9,6 +9,7 @@ import (
 	"github.com/jfrog/jfrog-client-go/http/jfroghttpclient"
 	"github.com/stretchr/testify/require"
 	"net/http"
+	"os"
 	"testing"
 )
 
@@ -25,7 +26,9 @@ func TestMain(m *testing.M) {
 	}
 	testMavenRepoKey = getRepoListFromDefaultServer("maven")[0].Key
 	testNpmRepoKey = getRepoListFromDefaultServer("npm")[0].Key
-	m.Run()
+
+	code := m.Run()
+	os.Exit(code)
 }
 
 func getRepoListFromDefaultServer(repoType string) []artifactory.RepoDetails {
@@ -51,16 +54,18 @@ func getRepoListFromDefaultServer(repoType string) []artifactory.RepoDetails {
 }
 
 func TestFailIfServerIdDoesntExists(t *testing.T) {
-	err := setMeUpCommand(context.Background(), []string{"test"}, serverDetails)
+	badConfig := config.ServerDetails{}
+	err := setMeUpCommand(context.Background(), []string{"test"}, &badConfig)
 	require.Error(t, err)
 }
 
 func TestFailsIfRepoDoesntExists(t *testing.T) {
-	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey+"$$$"}, serverDetails)
+	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey + "$$$"}, serverDetails)
 	require.Error(t, err)
 }
 
 func TestOkIfRepoExists(t *testing.T) {
+	_ = createTempDotM2(t)
 	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey}, serverDetails)
 	require.NoError(t, err)
 }
