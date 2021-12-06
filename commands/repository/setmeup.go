@@ -38,7 +38,7 @@ func getRepositorySetMeUpArguments() []components.Argument {
 	return []components.Argument{
 		{
 			Name:        "repoKey",
-			Description: "The repositoryKey you want to use",
+			Description: "The repository key you want to use, if not presented, a selection dropdown will be shown",
 		},
 	}
 }
@@ -47,13 +47,8 @@ func getRepositorySetMeUpFlags() []components.Flag {
 	return []components.Flag{
 		components.StringFlag{
 			Name:         commons.ServerIdFlag,
-			Description:  "The Jfrog Platform you want to use, if not set then the default one is used",
+			Description:  "The JFrog Platform you want to use, if not set then the default one is used",
 			DefaultValue: "",
-		},
-		components.StringFlag{
-			Name:         commons.EnvNameFlag,
-			Description:  "The environment you want to use, if not set then the default one is used",
-			DefaultValue: "default",
 		},
 	}
 }

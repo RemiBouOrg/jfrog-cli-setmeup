@@ -47,7 +47,7 @@ func getInitEnvArguments() []components.Argument {
 	return []components.Argument{
 		{
 			Name:        "repoKey",
-			Description: "The repositoryKey you want to use",
+			Description: "The repository key you want to use, if not presented, a selection dropdown will be shown",
 		},
 	}
 }
