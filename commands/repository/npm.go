@@ -2,6 +2,7 @@ package repository
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/jfrog/jfrog-client-go/utils/log"
@@ -14,7 +15,7 @@ import (
 // TODO consider set project level .npmrc file with credentials, ensure it's gitignored since it includes secrets. For now setting globally
 // TODO consider adding support scoped registry: @myscope:registry=https://mycustomregistry.example.org
 
-func handleNpm(configuration SetMeUpConfiguration) error {
+func handleNpm(ctx context.Context, configuration SetMeUpConfiguration) error {
 	const settingsFilePath = "%s/.npmrc"
 	const npmTemplate = "//%s%s/:_authToken=%s" // first param - artifactory url, second param - repo key, third param - token
 	if configuration.RepoDetails.PackageType != "npm" {

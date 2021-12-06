@@ -27,6 +27,6 @@ func TestMavenSetMeUp(t *testing.T) {
 		},
 	)
 	require.NoError(t, err)
-	_, err = os.Stat(fmt.Sprintf("%s/.m2/settings.xml", dir))
+	_, err = os.Stat(fmt.Sprintf("%s/settings.xml", mavenDir))
 	require.NoError(t, err)
 }

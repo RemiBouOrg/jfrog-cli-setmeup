@@ -59,6 +59,7 @@ type SetMeUpConfiguration struct {
 }
 
 var Handlers = map[string]func(context.Context, SetMeUpConfiguration) error{
+	repository.Npm:  handleNpm,
 	repository.Maven:  handleMaven,
 	repository.Nuget:  handleNuget,
 	repository.Docker: handleDocker,
