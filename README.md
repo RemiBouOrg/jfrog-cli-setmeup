@@ -70,11 +70,11 @@ Uninstalling a plugin
 ```
 
 ## Supported Package Types
-* Maven
-* Go
-* Docker
-* npm
-* NuGet
+-  [x] Maven
+-  [x] Go
+-  [x] Docker
+-  [x] npm
+-  [x] NuGet
 
 To use a package type, the corresponding tool should be installed (e.g. Docker requires `docker` in the $PATH). 
 

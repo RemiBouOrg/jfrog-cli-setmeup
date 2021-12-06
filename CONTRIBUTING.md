@@ -5,10 +5,14 @@
 make build
 ```
 
+> go v.16.x or above is required
+
 ## Run all tests
 ```
 make test
 ```
+
+> note that in order to run the tests some package management clients need to be installed - npm, maven, nuget, docker 
 
 ## Run coverage and open the html report
 ```
