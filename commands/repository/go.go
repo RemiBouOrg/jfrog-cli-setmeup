@@ -6,10 +6,7 @@ import (
 	"fmt"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"github.com/pkg/errors"
-	"io/fs"
-	"os"
 	"os/exec"
-	"path"
 	"strings"
 )
 
@@ -21,26 +18,13 @@ func handleGo(ctx context.Context, configuration SetMeUpConfiguration) error {
 
 	artiUrl := fmt.Sprintf("%s://%s:%s@%s", urlParts[0], configuration.ServerDetails.User, configuration.ServerDetails.Password, urlParts[1])
 
-	goProxy := fmt.Sprintf("%sapi/go/%s", artiUrl , configuration.RepoDetails.Key)
+	goProxy := fmt.Sprintf("%s/api/go/%s", artiUrl , configuration.RepoDetails.Key)
 
-	paths := []string{path.Join(os.Getenv("GOROOT"), "bin"), "", "/usr/local/bin/", "/usr/bin/"}
-
-	var err error
-	for _, p := range paths {
-		err = setGoProxy(ctx, p, goProxy)
-		if err == nil {
-			break
-		}
-
-		switch errors.Cause(err).(type) {
-		case *fs.PathError:
-			continue
-		default:
-			return err
-		}
-	}
-
+	goBinPath, err := exec.LookPath("go")
 	if err != nil {
+		return fmt.Errorf("failed to detect go executable with error %w", err)
+	}
+	if err = setGoProxy(ctx, goBinPath, goProxy); err != nil {
 		return err
 	}
 
@@ -48,12 +32,8 @@ func handleGo(ctx context.Context, configuration SetMeUpConfiguration) error {
 	return nil
 }
 
-func setGoProxy(ctx context.Context, pathPrefix, goProxy string) error {
-	if !strings.HasSuffix(pathPrefix, "/") {
-		pathPrefix += "/"
-	}
-
-	command := exec.CommandContext(ctx, fmt.Sprintf("%sgo", pathPrefix), "env", "-w", fmt.Sprintf("GOPROXY=%s", goProxy))
+func setGoProxy(ctx context.Context, goBinPath, goProxy string) error {
+	command := exec.CommandContext(ctx, goBinPath, "env", "-w", fmt.Sprintf("GOPROXY=%s", goProxy))
 	bufferString := bytes.NewBufferString("")
 	command.Stderr = bufferString
 	err := command.Run()

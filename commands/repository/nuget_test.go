@@ -21,7 +21,7 @@ func TestNuget(t *testing.T) {
 		},
 	)
 	require.NoError(t, err)
-	command := exec.Command("nuget", "search",
+	command := exec.Command("nuget", "list",
 		"-Source", "Artifactory",
 		"BrowserInterop",
 	)

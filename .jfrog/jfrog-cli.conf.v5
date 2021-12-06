@@ -8,6 +8,8 @@
       "missionControlUrl": "https://maxim.jfrog.io/mc/",
       "pipelinesUrl": "https://maxim.jfrog.io/pipelines/",
       "user": "anonymous",
+      "password": "fake-password-anonymous-access",
+      "tokenRefreshInterval": 60,
       "serverId": "jfrog-set-me-up-test",
       "isDefault": true
     }

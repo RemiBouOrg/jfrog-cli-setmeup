@@ -27,9 +27,9 @@ func handleDocker(ctx context.Context, configuration SetMeUpConfiguration) error
 	authConfig, _ := configuration.ServerDetails.CreateArtAuthConfig()
 	command := exec.Command("docker",
 		"login",
+		fmt.Sprintf("%s:%s", host, port),
 		"-u", authConfig.GetUser(),
-		"-p", authConfig.GetPassword(),
-		fmt.Sprintf("%s:%s", host, port))
+		"-p", authConfig.GetPassword())
 	bufferString := bytes.NewBufferString("")
 	command.Stderr = bufferString
 	err = command.Run()
@@ -42,11 +42,12 @@ func handleDocker(ctx context.Context, configuration SetMeUpConfiguration) error
 
 func findDockerHostAndPort(configuration SetMeUpConfiguration, webServerResponse *http.Response, webServerJson []byte) (string, string, error) {
 
-	if webServerResponse.StatusCode == 403 {
+	if webServerResponse.StatusCode == 403 || webServerResponse.StatusCode == 401 {
 		parseArtiUrl, err := url.Parse(configuration.ServerDetails.ArtifactoryUrl)
 		if err != nil {
 			return "", "", err
 		}
+		// 401 for anonymous
 		// if 403 it's likely a cloud instance, we'll try to login with the hostname
 		// if 403 is due to bad creds it will fail anyway
 		log.Info("Artifactory is likely a cloud instance")

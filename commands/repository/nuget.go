@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
+	"github.com/jfrog/jfrog-client-go/auth"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"github.com/pkg/errors"
 	"os/exec"
@@ -36,7 +37,7 @@ func handleNuget(ctx context.Context, configuration SetMeUpConfiguration) error 
 		"-Name", "Artifactory",
 		"-Source", fmt.Sprintf("%s%s", configuration.ServerDetails.ArtifactoryUrl, feedUrl),
 		"-UserName", authConfig.GetUser(),
-		"-Password", authConfig.GetPassword(),
+		"-Password", resolvePassword(authConfig),
 		"-NonInteractive",
 	)
 	bufferString := bytes.NewBufferString("")
@@ -47,4 +48,18 @@ func handleNuget(ctx context.Context, configuration SetMeUpConfiguration) error 
 	}
 	log.Info(fmt.Sprintf("Nuget feed named 'Artifactory' succesfuly set to %s", feedUrl))
 	return nil
+}
+
+func resolvePassword(authConfig auth.ServiceDetails) string {
+	if authConfig.GetPassword() != "" {
+		return authConfig.GetPassword()
+	}
+	if authConfig.GetApiKey() != "" {
+		return authConfig.GetApiKey()
+	}
+	if authConfig.GetAccessToken() != "" {
+		return authConfig.GetAccessToken()
+	}
+	log.Debug(fmt.Sprintf("Failed to detect credentials, fallback to empty sptring - might fail"))
+	return ""
 }

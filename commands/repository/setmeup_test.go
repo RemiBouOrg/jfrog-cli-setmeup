@@ -51,16 +51,16 @@ func getRepoListFromDefaultServer(repoType string) []artifactory.RepoDetails {
 }
 
 func TestFailIfServerIdDoesntExists(t *testing.T) {
-	err := setMeUpCommand(context.Background(), []string{"test"}, "donotexists")
+	err := setMeUpCommand(context.Background(), []string{"test"}, serverDetails)
 	require.Error(t, err)
 }
 
 func TestFailsIfRepoDoesntExists(t *testing.T) {
-	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey+"$$$"}, "")
+	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey+"$$$"}, serverDetails)
 	require.Error(t, err)
 }
 
 func TestOkIfRepoExists(t *testing.T) {
-	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey}, "")
+	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey}, serverDetails)
 	require.NoError(t, err)
 }

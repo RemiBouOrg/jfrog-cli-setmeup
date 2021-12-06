@@ -1,4 +1,4 @@
-export JFROG_CLI_HOME_DIR=${PWD}/.jfrog
+export JFROG_CLI_HOME_DIR=$(CURDIR)/.jfrog
 
 build:
 	go build -o build/jfrogsetmeup 

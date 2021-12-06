@@ -18,11 +18,11 @@ func Test_handleGo(t *testing.T) {
 		configuration SetMeUpConfiguration
 	}
 	tests := []struct {
-	name    string
-	args    args
-	wantErr bool
-	want    string
-}{
+		name    string
+		args    args
+		wantErr bool
+		want    string
+	}{
 		{
 			name: "should have go proxy for valid parameters - https",
 			args: args{
@@ -31,7 +31,7 @@ func Test_handleGo(t *testing.T) {
 					RepoDetails:   &artifactory.RepoDetails{Key: "go-local"},
 				},
 			},
-			want: "https://foo:bar@example.com/artifactory/api/go/go-local",
+			want:    "https://foo:bar@example.com/artifactory/api/go/go-local",
 			wantErr: false,
 		},
 		{
@@ -42,7 +42,7 @@ func Test_handleGo(t *testing.T) {
 					RepoDetails:   &artifactory.RepoDetails{Key: "go-local"},
 				},
 			},
-			want: "http://foo:bar@example.com/artifactory/api/go/go-local",
+			want:    "http://foo:bar@example.com/artifactory/api/go/go-local",
 			wantErr: false,
 		},
 		{
@@ -59,17 +59,18 @@ func Test_handleGo(t *testing.T) {
 	for _, tt := range tests {
 		_ = os.Unsetenv("GOPROXY")
 		t.Run(tt.name, func(t *testing.T) {
-			err := handleGo(context.Background(), tt.args.configuration);
+			err := handleGo(context.Background(), tt.args.configuration)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("handleGo() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
 			if err == nil {
-				command := exec.Command(os.Getenv("GOROOT")+"/bin/go", "env", "GOPROXY")
+				goBinPath, err := exec.LookPath("go")
+				require.NoError(t, err)
+				command := exec.Command(goBinPath, "env", "GOPROXY")
 				bufferString := bytes.NewBufferString("")
 				command.Stdout = bufferString
-
-				err := command.Run()
+				err = command.Run()
 				require.NoError(t, err)
 				assert.Equal(t, tt.want, strings.Trim(bufferString.String(), "\"\n"))
 			}
