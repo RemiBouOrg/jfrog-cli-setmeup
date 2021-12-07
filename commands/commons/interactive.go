@@ -8,13 +8,24 @@ import (
 	"strings"
 )
 
-func FindRepo(serverDetails *config.ServerDetails) (*artifactory.RepoDetails, error) {
+type FindRepoService interface {
+	FindRepo(serverDetails *config.ServerDetails) (*artifactory.RepoDetails, error)
+}
+
+type findRepoService struct {
+}
+
+func NewFindRepoService() *findRepoService {
+	return &findRepoService{}
+}
+
+func (frs *findRepoService) FindRepo(serverDetails *config.ServerDetails) (*artifactory.RepoDetails, error) {
 	repos, err := artifactory.GetAllRepoNames(serverDetails)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get all repos: %w", err)
 	}
 
-	return RunInteractiveMenu("", "Repository key", repos)
+	return frs.runInteractiveMenu("", "Repository key", repos)
 }
 
 func unzipRepo(details []*artifactory.RepoDetails) []string {
@@ -26,7 +37,7 @@ func unzipRepo(details []*artifactory.RepoDetails) []string {
 	return display
 }
 
-func RunInteractiveMenu(selectionHeader string, selectionLabel string, values []*artifactory.RepoDetails) (*artifactory.RepoDetails, error) {
+func (*findRepoService) runInteractiveMenu(selectionHeader string, selectionLabel string, values []*artifactory.RepoDetails) (*artifactory.RepoDetails, error) {
 	if selectionHeader != "" {
 		fmt.Println(selectionHeader)
 	}

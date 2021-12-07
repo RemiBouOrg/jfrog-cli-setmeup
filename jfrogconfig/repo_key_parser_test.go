@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestFindRepoKeys(t *testing.T) {
-	got, err := FindRepoKeys(&components.Context{Arguments: []string{"maven-local"}}, serverDetails)
+	got, err := FindRepoKeys(&components.Context{Arguments: []string{"maven-local"}}, nil, serverDetails)
 	require.NoError(t, err)
 	require.Equal(t, []string{"maven-local"}, got)
 }
@@ -37,7 +37,7 @@ func TestReadWriteConfigFile(t *testing.T) {
 
 func Test_extractValues(t *testing.T) {
 	got := extractValues(&RepoTypeToName{"env-a": "a1", "b": "b1"})
-	require.Equal(t, []string{"a1", "b1"}, got)
+	require.ElementsMatch(t, []string{"a1", "b1"}, got)
 }
 
 func Test_findRepoKeyFromConfFile(t *testing.T) {

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/jfrog/jfrog-cli-core/v2/plugins"
 	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/commons"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/environment"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/repository"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/show"
@@ -22,9 +23,10 @@ func getApp() components.App {
 }
 
 func getCommands() []components.Command {
+	findRepoService := commons.NewFindRepoService()
 	return []components.Command{
-		repository.GetSetMeUpCommand(),
-		environment.GetEnvInitCommand(),
+		repository.GetSetMeUpCommand(findRepoService),
+		environment.GetEnvInitCommand(findRepoService),
 		environment.GetEnvApplyCommand(),
 		show.GetShowCommand(),
 	}

@@ -11,9 +11,9 @@ import (
 	"os"
 )
 
-const jfrogConfFilePath = "./.jfrog-setmeup.yaml"
+const JfrogConfFilePath = "./.jfrog-setmeup.yaml"
 
-func FindRepoKeys(c *components.Context, serverDetails *config.ServerDetails) ([]string, error) {
+func FindRepoKeys(c *components.Context, findRepoService commons.FindRepoService, serverDetails *config.ServerDetails) ([]string, error) {
 	if len(c.Arguments) >= 1 {
 		repoArg := c.Arguments[0]
 		if len(repoArg) > 0 {
@@ -21,7 +21,7 @@ func FindRepoKeys(c *components.Context, serverDetails *config.ServerDetails) ([
 		}
 	}
 
-	repo, err := commons.FindRepo(serverDetails)
+	repo, err := findRepoService.FindRepo(serverDetails)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func findRepoKeyFromConfFile(envName string) (*RepoTypeToName, error) {
 }
 
 func ReadCurrentConfFile() (JFrogConfFile, error) {
-	confFileContent, err := fileutils.ReadFile(jfrogConfFilePath)
+	confFileContent, err := fileutils.ReadFile(JfrogConfFilePath)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil
 	}
@@ -63,11 +63,11 @@ func ReadCurrentConfFile() (JFrogConfFile, error) {
 	confFile := JFrogConfFile{}
 	err = yaml.Unmarshal(confFileContent, &confFile)
 	if err != nil {
-		return nil, os.Remove(jfrogConfFilePath)
+		return nil, os.Remove(JfrogConfFilePath)
 	}
 	return confFile, nil
 }
 
 func WriteConfigFile(confContent []byte) error {
-	return ioutil.WriteFile(jfrogConfFilePath, confContent, 0644)
+	return ioutil.WriteFile(JfrogConfFilePath, confContent, 0644)
 }

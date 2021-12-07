@@ -2,7 +2,9 @@ package environment
 
 import (
 	"context"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/commons"
 	"github.com/jfrog/jfrog-cli-plugin-template/jfrogconfig"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
@@ -48,4 +50,14 @@ func writeConf(t *testing.T) {
 `
 	err := jfrogconfig.WriteConfigFile([]byte(conf))
 	require.NoError(t, err)
+}
+
+func TestGetEnvApplyCommandFlagsAndArgs(t *testing.T) {
+	got := GetEnvApplyCommand()
+	var flagNames []string
+	for _, flag := range got.Flags {
+		flagNames = append(flagNames, flag.GetName())
+	}
+	assert.ElementsMatch(t, []string{commons.ServerIdFlag, commons.EnvNameFlag}, flagNames)
+	assert.Equal(t, 0, len(got.Arguments))
 }

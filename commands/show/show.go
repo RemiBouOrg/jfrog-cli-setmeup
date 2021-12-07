@@ -19,8 +19,7 @@ func GetShowCommand() components.Command {
 		Description: "Display all currently setup repository by reading configuration/environment",
 		Aliases:     []string{"s"},
 		Action: func(c *components.Context) error {
-			showCommand(context.Background())
-			return nil
+			return showCommand(context.Background())
 		},
 	}
 }
@@ -58,7 +57,7 @@ var showers = []struct {
 	},
 }
 
-func showCommand(ctx context.Context) {
+func showCommand(ctx context.Context) error {
 	repoTypeTmpl, _ := template.New("repoType").
 		Funcs(promptui.FuncMap).
 		Parse("{{ .PackageType }} :: \n")
@@ -80,6 +79,8 @@ func showCommand(ctx context.Context) {
 			log.Debug(fmt.Sprintf("%s : no repository setup", shower.PackageType))
 		}
 	}
+
+	return nil
 }
 
 func findServerIdByUrl(url string) string {

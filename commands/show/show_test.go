@@ -1,7 +1,9 @@
 package show
 
 import (
+	"context"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -16,4 +18,15 @@ func TestFindServerIdByUrl(t *testing.T) {
 func TestFindServerIdByUrlError(t *testing.T) {
 	serverId := findServerIdByUrl("http://google.com")
 	require.Equal(t, "", serverId)
+}
+
+func TestGetShowCommandFlagsAndArgs(t *testing.T) {
+	got := GetShowCommand()
+	assert.Equal(t, 0, len(got.Flags))
+	assert.Equal(t, 0, len(got.Arguments))
+}
+
+func Test_showCommand(t *testing.T) {
+	err := showCommand(context.Background())
+	require.NoError(t, err)
 }

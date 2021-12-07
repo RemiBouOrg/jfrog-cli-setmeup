@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
 	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/commons"
 	"github.com/jfrog/jfrog-client-go/http/jfroghttpclient"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"os"
@@ -67,5 +70,38 @@ func TestFailsIfRepoDoesntExists(t *testing.T) {
 func TestOkIfRepoExists(t *testing.T) {
 	_ = createTempDotM2(t)
 	err := setMeUpCommand(context.Background(), []string{testMavenRepoKey}, serverDetails)
+	require.NoError(t, err)
+}
+
+func TestGetSetMeUpCommandFlags(t *testing.T) {
+	got := GetSetMeUpCommand(nil)
+	var flagNames []string
+	for _, flag := range got.Flags {
+		flagNames = append(flagNames, flag.GetName())
+	}
+	assert.ElementsMatch(t, []string{commons.ServerIdFlag}, flagNames)
+}
+
+func TestGetSetMeUpCommandArgs(t *testing.T) {
+	got := GetSetMeUpCommand(nil)
+	var argNames []string
+	for _, arg := range got.Arguments {
+		argNames = append(argNames, arg.Name)
+	}
+	assert.ElementsMatch(t, []string{"repoKey"}, argNames)
+}
+
+type dummyFindRepo struct {
+}
+
+func (r dummyFindRepo) FindRepo(serverDetails *config.ServerDetails) (*artifactory.RepoDetails, error) {
+	return &artifactory.RepoDetails{Key: "default-npm-local", PackageType: "npm"}, nil
+}
+
+func TestGetEnvInitCommandFuncNoArgs(t *testing.T) {
+	findRepoService := &dummyFindRepo{}
+	got := GetSetMeUpCommand(findRepoService)
+
+	err := got.Action(&components.Context{})
 	require.NoError(t, err)
 }

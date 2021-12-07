@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func GetEnvInitCommand() components.Command {
+func GetEnvInitCommand(findRepoService commons.FindRepoService) components.Command {
 	return components.Command{
 		Name:        "environment",
 		Description: "Store repository config on the current dir to share with the team members",
@@ -29,7 +29,7 @@ func GetEnvInitCommand() components.Command {
 			if len(c.Arguments) == 1 {
 				repoKey = c.Arguments[0]
 			} else {
-				repo, err := commons.FindRepo(serverDetails)
+				repo, err := findRepoService.FindRepo(serverDetails)
 				if err != nil {
 					return err
 				}

@@ -12,7 +12,7 @@ import (
 	"github.com/jfrog/jfrog-client-go/utils/log"
 )
 
-func GetSetMeUpCommand() components.Command {
+func GetSetMeUpCommand(findRepoService commons.FindRepoService) components.Command {
 	return components.Command{
 		Name:        "repository",
 		Description: "Set up your environment to use Artifactory repository",
@@ -25,7 +25,7 @@ func GetSetMeUpCommand() components.Command {
 				return fmt.Errorf("unable to get server details : %w", err)
 			}
 
-			repoKeys, err := jfrogconfig.FindRepoKeys(c, serverDetails)
+			repoKeys, err := jfrogconfig.FindRepoKeys(c, findRepoService, serverDetails)
 			if err != nil {
 				return err
 			}
@@ -59,7 +59,7 @@ type SetMeUpConfiguration struct {
 }
 
 var Handlers = map[string]func(context.Context, SetMeUpConfiguration) error{
-	repository.Npm:  handleNpm,
+	repository.Npm:    handleNpm,
 	repository.Maven:  handleMaven,
 	repository.Nuget:  handleNuget,
 	repository.Docker: handleDocker,
