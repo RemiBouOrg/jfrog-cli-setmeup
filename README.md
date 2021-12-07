@@ -3,6 +3,8 @@
   <img alt="jfrog set me up" src="https://github.com/RemiBouOrg/jfrog-cli-setmeup/blob/master/assets/images/jfrogclisetmeup.png">
 </p>
 
+![coverage badge](./assets/images/coverage.png)
+
 ## About this plugin
 This plugin is a helpful tool to configure a local environment with certain repositories in Artifactory.
 

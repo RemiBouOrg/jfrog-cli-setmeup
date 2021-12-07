@@ -19,5 +19,10 @@ make test
 make open-coverage
 ```
 
+## Generate coverage badge
+```
+make coverage-badge
+```
+
 ## How to contribute?
 Fork this repository, change the code and create a PR and make sure to tag at least one of the contributors as reviewers.
