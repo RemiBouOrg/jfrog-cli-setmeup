@@ -1,6 +1,6 @@
 # JFrog CLI plugin - Set me up
 <p align="center">
-  <img alt="jfrog set me up" src="https://github.com/RemiBouOrg/jfrog-cli-setmeup/blob/master/assets/images/jfrogsetmeuplogo.jpeg">
+  <img alt="jfrog set me up" src="https://github.com/RemiBouOrg/jfrog-cli-setmeup/blob/master/assets/images/jfrogclisetmeup.png">
 </p>
 
 ## About this plugin
