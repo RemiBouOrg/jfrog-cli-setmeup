@@ -27,6 +27,6 @@ func TestGetShowCommandFlagsAndArgs(t *testing.T) {
 }
 
 func Test_showCommand(t *testing.T) {
-	err := showCommand(context.Background())
+	err := ShowCommand(context.Background())
 	require.NoError(t, err)
 }

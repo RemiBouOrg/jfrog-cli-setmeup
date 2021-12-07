@@ -25,7 +25,7 @@ func Test_handleNpmWrongRepoType(t *testing.T) {
 func Test_handleNpmHomeUndefined(t *testing.T) {
 	err := os.Setenv("HOME", "")
 	require.NoError(t, err)
-	err = handleNpm(context.Background(), getNpmConfig())
+	err = handleNpm(context.Background(), getNpmSetMeUpConfig())
 	require.Error(t, err)
 	require.Equal(t, "$HOME is not defined", err.Error())
 }
@@ -33,24 +33,27 @@ func Test_handleNpmHomeUndefined(t *testing.T) {
 func Test_handleNpmNoNpmrcFile(t *testing.T) {
 	home := setTempHome(t)
 
-	err := handleNpm(context.Background(), getNpmConfig())
+	err := handleNpm(context.Background(), getNpmSetMeUpConfig())
 
 	require.NoError(t, err)
 	data, err := os.ReadFile(path.Join(home, ".npmrc"))
 	require.NoError(t, err)
-	expected := "//https://maxim.jfrog.io/artifactory/default-npm-local/:_authToken=fake-password-anonymous-access"
-	require.Equal(t, expected, string(data))
+	expected := `registry=https://maxim.jfrog.io/artifactory/api/npm/default-npm-local/
+_auth = .*
+always-auth = true
+`
+	require.Regexp(t, expected, string(data))
 }
 
 func Test_handleNpmIdenticalNpmrcFileExists(t *testing.T) {
 	home := setTempHome(t)
-	err := handleNpm(context.Background(), getNpmConfig())
+	err := handleNpm(context.Background(), getNpmSetMeUpConfig())
 	require.NoError(t, err)
 	statsBefore, err := os.Stat(path.Join(home, ".npmrc"))
 	require.NoError(t, err)
 	before := statsBefore.ModTime()
 
-	err = handleNpm(context.Background(), getNpmConfig())
+	err = handleNpm(context.Background(), getNpmSetMeUpConfig())
 	require.NoError(t, err)
 	statesAfter, err := os.Stat(path.Join(home, ".npmrc"))
 	require.NoError(t, err)
@@ -68,7 +71,7 @@ func Test_handleNpmDifferentNpmrcFileExists(t *testing.T) {
 	require.NoError(t, err)
 	before := statsBefore.ModTime()
 
-	err = handleNpm(context.Background(), getNpmConfig())
+	err = handleNpm(context.Background(), getNpmSetMeUpConfig())
 	require.NoError(t, err)
 	statsAfter, err := os.Stat(npmrcPath)
 	require.NoError(t, err)
@@ -80,7 +83,7 @@ func Test_handleNpmDifferentNpmrcFileExists(t *testing.T) {
 	require.Equal(t, 2, len(dirEntries)) // npmrc file and bak file
 }
 
-func getNpmConfig() SetMeUpConfiguration {
+func getNpmSetMeUpConfig() SetMeUpConfiguration {
 	return SetMeUpConfiguration{
 		ServerDetails: serverDetails,
 		RepoDetails: &artifactory.RepoDetails{

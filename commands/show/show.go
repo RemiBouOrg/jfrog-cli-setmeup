@@ -19,7 +19,7 @@ func GetShowCommand() components.Command {
 		Description: "Display all currently setup repository by reading configuration/environment",
 		Aliases:     []string{"s"},
 		Action: func(c *components.Context) error {
-			return showCommand(context.Background())
+			return ShowCommand(context.Background())
 		},
 	}
 }
@@ -57,7 +57,7 @@ var showers = []struct {
 	},
 }
 
-func showCommand(ctx context.Context) error {
+func ShowCommand(ctx context.Context) error {
 	repoTypeTmpl, _ := template.New("repoType").
 		Funcs(promptui.FuncMap).
 		Parse("{{ .PackageType }} :: \n")

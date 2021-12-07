@@ -5,8 +5,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
+	"github.com/jfrog/jfrog-cli-plugin-template/commands/artifactory"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"time"
 )
@@ -16,8 +19,6 @@ import (
 // TODO consider adding support scoped registry: @myscope:registry=https://mycustomregistry.example.org
 
 func handleNpm(ctx context.Context, configuration SetMeUpConfiguration) error {
-	const settingsFilePath = "%s/.npmrc"
-	const npmTemplate = "//%s%s/:_authToken=%s" // first param - artifactory url, second param - repo key, third param - token
 	if configuration.RepoDetails.PackageType != "npm" {
 		return fmt.Errorf("unexpected repo type. Expected 'npm' but was: '%v'", configuration.RepoDetails.PackageType)
 	}
@@ -25,8 +26,13 @@ func handleNpm(ctx context.Context, configuration SetMeUpConfiguration) error {
 	if err != nil {
 		return err
 	}
-	npmrcFile := fmt.Sprintf(settingsFilePath, dirname)
-	npmrcContent := []byte(fmt.Sprintf(npmTemplate, configuration.ServerDetails.ArtifactoryUrl, configuration.RepoDetails.Key, configuration.ServerDetails.Password))
+	npmrcFile := fmt.Sprintf("%s/.npmrc", dirname)
+	npmConfig, err := getNpmAuthConfig(configuration.ServerDetails)
+	if err != nil {
+		return err
+	}
+	registryUrl := fmt.Sprintf("%sapi/npm/%s/", configuration.ServerDetails.ArtifactoryUrl, configuration.RepoDetails.Key)
+	npmrcContent := []byte(fmt.Sprintf("registry=%s\n%s", registryUrl, npmConfig))
 	if _, err := os.Stat(npmrcFile); !errors.Is(err, os.ErrNotExist) { // if exists
 		data, err := ioutil.ReadFile(npmrcFile)
 		if err != nil {
@@ -50,4 +56,15 @@ func handleNpm(ctx context.Context, configuration SetMeUpConfiguration) error {
 	}
 	log.Info(fmt.Sprintf("Npm repo '%v' configured successfully at '%s'", configuration.RepoDetails.Key, npmrcFile))
 	return nil
+}
+
+func getNpmAuthConfig(details *config.ServerDetails) (string, error) {
+	res, body, err := artifactory.ArtifactoryHttpGet(details, "api/npm/auth")
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch npm token: %w", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to fetch npm token, bad status: %v", res.Status)
+	}
+	return string(body), nil
 }
