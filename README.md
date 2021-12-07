@@ -1,6 +1,7 @@
 # JFrog CLI plugin - Set me up
-
-![repository selection](./assets/images/jfrogsetmeuplogo.jpeg)
+<p align="center">
+  <img alt="jfrog set me up" src="https://github.com/RemiBouOrg/jfrog-cli-setmeup/blob/master/assets/images/jfrogsetmeuplogo.jpeg">
+</p>
 
 ## About this plugin
 This plugin is a helpful tool to configure a local environment with certain repositories in Artifactory.
